@@ -23,6 +23,10 @@ export default defineConfig({
       // device and there is no server to talk to.
       adapter: adapter({ fallback: "404.html" }),
 
+      // Served from the domain's root unless told otherwise, as a preview on
+      // GitHub Pages is, under the repository's name.
+      paths: { base: (process.env.BASE_PATH ?? "") as "" | `/${string}` },
+
       prerender: {
         // #how-it-works opens the info drawer rather than naming an element,
         // so nothing on the page carries that id on purpose.
