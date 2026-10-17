@@ -1,7 +1,14 @@
 import { describe, expect, it } from "bun:test";
 import {
   MAX_COLUMNS,
+  MAX_SIZE,
+  MIN_SIZE,
+  clampSize,
   columnCount,
+  columnSize,
+  readSize,
+  stepSize,
+  withColumnSize,
   columnTexts,
   widenFor,
   withColumnText,
@@ -78,5 +85,37 @@ describe("widenFor", () => {
 
   it("never asks for more than the whole screen", () => {
     expect(widenFor({ x: 0, width: 0.5 }, 9).width).toBeLessThanOrEqual(1);
+  });
+});
+
+describe("column sizes", () => {
+  it("fits the space unless a size has been set", () => {
+    expect(columnSize({ sizes: [] }, 2)).toBeNull();
+    expect(columnSize({ sizes: [null, 0.2] }, 1)).toBe(0.2);
+  });
+
+  it("sets one column without touching the others", () => {
+    const note = { sizes: [0.3] };
+    expect(withColumnSize(note, 2, 0.1)).toEqual({ sizes: [0.3, null, 0.1] });
+    expect(withColumnSize(note, 0, null)).toEqual({ sizes: [null] });
+    expect(note.sizes).toEqual([0.3]);
+  });
+
+  it("keeps a size readable and on the Note", () => {
+    expect(clampSize(0)).toBe(MIN_SIZE);
+    expect(clampSize(5)).toBe(MAX_SIZE);
+    expect(stepSize(MAX_SIZE, 1)).toBe(MAX_SIZE);
+    expect(stepSize(MIN_SIZE, -1)).toBe(MIN_SIZE);
+  });
+
+  it("steps up and back down to where it began", () => {
+    expect(stepSize(stepSize(0.2, 1), -1)).toBeCloseTo(0.2, 2);
+  });
+
+  it("reads anything odd in a saved Note as fitting the space", () => {
+    expect(readSize("big")).toBeNull();
+    expect(readSize(-1)).toBeNull();
+    expect(readSize(Number.POSITIVE_INFINITY)).toBeNull();
+    expect(readSize(0.25)).toBe(0.25);
   });
 });

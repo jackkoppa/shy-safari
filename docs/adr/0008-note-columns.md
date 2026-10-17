@@ -13,6 +13,13 @@ style.
   columns fit at, so a short column never shouts over a long one. With more
   than one column the words start at the top, so the lists line up; one
   column stays centred, as before.
+- **Or a size of the teacher's own.** Under the toolbar, **Auto fit** and
+  **A− / A+** set the size of the column the caret is in (a dashed outline
+  shows which, while the controls are up). A set size is a fraction of the
+  Note's height, so it grows and shrinks with the Note, and words set bigger
+  than their column are cut off at its edge rather than spilling over the
+  artwork. The columns still fitting the space share a size among
+  themselves. With one column, this is the size of the whole Note's words.
 - **Widened, not squeezed.** Choosing more columns widens a narrow Note from
   its middle, so each column still holds a word or two. Choosing fewer never
   shrinks it.

@@ -12,11 +12,12 @@
    *
    * The words can be set in up to four columns, side by side, each typed in
    * on its own. Every column shares one size, the largest all of them fit
-   * at, so no column shouts over its neighbours.
+   * at, so no column shouts over its neighbours, unless the teacher has set
+   * a column's size themselves.
    */
 
   import { t } from "$lib/i18n/index.svelte";
-  import { columnTexts, withColumnText } from "$lib/notes/columns";
+  import { columnSize, columnTexts, withColumnText } from "$lib/notes/columns";
   import {
     MIN_HEIGHT,
     MIN_WIDTH,
@@ -34,7 +35,9 @@
     selected,
     chrome,
     mode,
+    activeColumn = 0,
     onselect,
+    onfocuscolumn,
     onchange,
     ondrag,
     onremove,
@@ -45,7 +48,11 @@
     /** The grips and close button show; they go with the controls. */
     chrome: boolean;
     mode: NoteMode;
+    /** The column the size buttons change, outlined while chosen. */
+    activeColumn?: number;
     onselect: () => void;
+    /** The caret went into a column, counting from 0. */
+    onfocuscolumn?: (column: number) => void;
     onchange: (change: Partial<Omit<Note, "id">>) => void;
     /** Where the Note is while being dragged, and `null` once it is let go. */
     ondrag?: (box: NoteBox | null) => void;
@@ -92,6 +99,16 @@
     textEls[column]?.focus();
   }
 
+  /**
+   * The size a column's words are showing at, as a fraction of the Note's
+   * height: where the size buttons start from when it was fitting the space.
+   */
+  export function shownSize(column: number): number | null {
+    const el = textEls[column];
+    if (!el || !height) return null;
+    return parseFloat(el.style.fontSize) / height;
+  }
+
   // Words typed arrive here from the element itself; only words that change
   // some other way (another tab, a restore) are written back into it, or the
   // caret would jump to the start with every key. Svelte renders nothing
@@ -109,8 +126,17 @@
    * long one widens the text and shrinks it rather than spilling out.
    */
   function fit() {
-    const els = textEls.slice(0, texts.length).filter(Boolean);
-    if (els.length === 0 || !writingBox) return;
+    if (!writingBox || !height) return;
+    const els: HTMLDivElement[] = [];
+    texts.forEach((_, i) => {
+      const el = textEls[i];
+      if (!el) return;
+      // A size the teacher set is kept, fitting or not.
+      const size = columnSize(note, i);
+      if (size === null) els.push(el);
+      else el.style.fontSize = `${size * height}px`;
+    });
+    if (els.length === 0) return;
     const maxHeight = writingBox.clientHeight;
     const setSize = (size: number) => {
       for (const el of els) el.style.fontSize = `${size}px`;
@@ -135,7 +161,7 @@
 
   $effect(() => {
     // Refit whenever the words, the space for them or the placeholder change.
-    void [texts, writing, selected, chrome, drawing];
+    void [texts, note.sizes, height, writing, selected, chrome, drawing];
     fit();
   });
 
@@ -341,40 +367,54 @@
     >
       {#each texts as text, i (i)}
         <div
-          class="note-column relative flex min-w-0 flex-1 justify-center"
-          class:items-center={!columned}
+          class="note-column relative min-w-0 flex-1"
+          class:active={columned &&
+            selected &&
+            chrome &&
+            !drawing &&
+            i === activeColumn}
         >
-          <!-- Pressing the words types in them rather than dragging the Note,
-               once it is chosen. -->
+          <!-- Words set bigger than the space are cut off at its edge rather
+               than spilling over the artwork. -->
           <div
-            bind:this={textEls[i]}
-            class="note-text w-full text-center"
-            class:h-full={columned}
-            class:cursor-text={selected}
-            class:select-text={selected}
-            contenteditable="plaintext-only"
-            role="textbox"
-            tabindex="0"
-            aria-multiline="true"
-            aria-label={columned
-              ? t("notes.column", { n: i + 1 })
-              : t("notes.text")}
-            data-empty={text.trim() === ""}
-            data-placeholder={selected && chrome && !drawing
-              ? t("notes.placeholder")
-              : ""}
-            onpointerdown={(event) => {
-              if (selected) event.stopPropagation();
-            }}
-            onfocus={onselect}
-            oninput={() => {
-              onchange(withColumnText(note, i, textEls[i].innerText));
-              fit();
-            }}
-            onkeydown={(event) => {
-              if (event.key === "Escape") textEls[i].blur();
-            }}
-          ></div>
+            class="absolute inset-0 flex justify-center overflow-hidden"
+            class:items-center={!columned}
+          >
+            <!-- Pressing the words types in them rather than dragging the Note,
+               once it is chosen. -->
+            <div
+              bind:this={textEls[i]}
+              class="note-text w-full text-center"
+              class:h-full={columned}
+              class:cursor-text={selected}
+              class:select-text={selected}
+              contenteditable="plaintext-only"
+              role="textbox"
+              tabindex="0"
+              aria-multiline="true"
+              aria-label={columned
+                ? t("notes.column", { n: i + 1 })
+                : t("notes.text")}
+              data-empty={text.trim() === ""}
+              data-placeholder={selected && chrome && !drawing
+                ? t("notes.placeholder")
+                : ""}
+              onpointerdown={(event) => {
+                if (selected) event.stopPropagation();
+              }}
+              onfocus={() => {
+                onselect();
+                onfocuscolumn?.(i);
+              }}
+              oninput={() => {
+                onchange(withColumnText(note, i, textEls[i].innerText));
+                fit();
+              }}
+              onkeydown={(event) => {
+                if (event.key === "Escape") textEls[i].blur();
+              }}
+            ></div>
+          </div>
         </div>
       {/each}
     </div>

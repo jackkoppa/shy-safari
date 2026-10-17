@@ -10,7 +10,13 @@
    */
 
   import { t, tIn, type UiKey } from "$lib/i18n/index.svelte";
-  import { MAX_COLUMNS, widenFor } from "$lib/notes/columns";
+  import {
+    MAX_COLUMNS,
+    columnSize,
+    stepSize,
+    widenFor,
+    withColumnSize,
+  } from "$lib/notes/columns";
   import {
     INKS,
     notes,
@@ -37,6 +43,16 @@
   );
   /** Each Note opens in the mode it was left in. */
   const mode = $derived<NoteMode>(selected?.mode ?? "type");
+
+  /** The column the caret was last in, which the size buttons change. */
+  let focusedColumn = $state(0);
+  const activeColumn = $derived(
+    selected ? Math.min(focusedColumn, selected.columns - 1) : 0,
+  );
+  /** Whether the active column fits its words to the space. */
+  const autoFit = $derived(
+    selected ? columnSize(selected, activeColumn) === null : true,
+  );
 
   /** The Note being dragged and where it is, so its toolbar keeps up. */
   let dragging = $state<{ id: number; box: NoteBox } | null>(null);
@@ -85,7 +101,24 @@
       requestAnimationFrame(() => views[id]?.focus(firstAdded));
   }
 
+  /**
+   * The active column's words one step bigger or smaller, starting from the
+   * size they were fitted to if they were fitting the space.
+   */
+  function resize(direction: 1 | -1) {
+    if (!selected) return;
+    const from =
+      columnSize(selected, activeColumn) ??
+      views[selected.id]?.shownSize(activeColumn) ??
+      0.2;
+    notes.update(
+      selected.id,
+      withColumnSize(selected, activeColumn, stepSize(from, direction)),
+    );
+  }
+
   function choose(id: number | null) {
+    if (id !== selectedId) focusedColumn = 0;
     selectedId = id;
   }
 
@@ -149,7 +182,9 @@
       selected={note.id === selectedId}
       {chrome}
       {mode}
+      activeColumn={note.id === selectedId ? activeColumn : 0}
       onselect={() => choose(note.id)}
+      onfocuscolumn={(column) => (focusedColumn = column)}
       onchange={(change) => notes.update(note.id, change)}
       onremove={() => remove(note.id)}
       ondrag={(box) => {
@@ -273,6 +308,53 @@
           {/each}
         </div>
       </div>
+
+      {#if mode === "type"}
+        <!-- Fitted to the space, or a size of the teacher's own, for the
+             column the caret is in. -->
+        <div
+          class="flex flex-wrap items-center justify-center gap-1.5 text-sm sm:gap-2"
+          role="group"
+          aria-label={selected.columns > 1
+            ? `${t("notes.size")}: ${t("notes.column", { n: activeColumn + 1 })}`
+            : t("notes.size")}
+        >
+          {#if selected.columns > 1}
+            <span class="px-1 text-slate-500">
+              {t("notes.column", { n: activeColumn + 1 })}
+            </span>
+          {/if}
+          <button
+            class="rounded-full border px-3 py-1.5 {autoFit
+              ? 'border-slate-900 bg-slate-900 text-white'
+              : 'border-slate-300 hover:bg-slate-50'}"
+            aria-pressed={autoFit}
+            title={t("notes.autoFitHint")}
+            onclick={() =>
+              notes.update(
+                selected.id,
+                withColumnSize(selected, activeColumn, null),
+              )}
+          >
+            {t("notes.autoFit")}
+          </button>
+          <div class="flex rounded-full border border-slate-300 p-0.5">
+            {#each [-1, 1] as const as direction (direction)}
+              <button
+                class="grid h-8 w-10 place-items-center rounded-full font-semibold text-slate-700 hover:bg-slate-100"
+                aria-label={t(direction < 0 ? "notes.smaller" : "notes.bigger")}
+                title={t(direction < 0 ? "notes.smaller" : "notes.bigger")}
+                onclick={() => resize(direction)}
+              >
+                <span aria-hidden="true">
+                  <span class={direction < 0 ? "text-xs" : "text-base"}>A</span
+                  >{direction < 0 ? "−" : "+"}
+                </span>
+              </button>
+            {/each}
+          </div>
+        </div>
+      {/if}
 
       {#if mode === "draw"}
         <div class="flex flex-wrap justify-center gap-1.5 sm:gap-2">
