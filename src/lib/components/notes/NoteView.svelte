@@ -9,9 +9,14 @@
    * the projector sends. The Note is moved by dragging its artwork or, once
    * chosen, its edge, which in Draw is the only way: the inside is for the
    * pen. Any corner resizes it.
+   *
+   * The words can be set in up to four columns, side by side, each typed in
+   * on its own. Every column shares one size, the largest all of them fit
+   * at, so no column shouts over its neighbours.
    */
 
   import { t } from "$lib/i18n/index.svelte";
+  import { columnTexts, withColumnText } from "$lib/notes/columns";
   import {
     MIN_HEIGHT,
     MIN_WIDTH,
@@ -49,7 +54,8 @@
 
   let root: HTMLDivElement;
   let writingBox = $state<HTMLDivElement>();
-  let textEl = $state<HTMLDivElement>();
+  /** One editable box per column, left to right. */
+  const textEls: HTMLDivElement[] = $state([]);
   let width = $state(0);
   let height = $state(0);
 
@@ -71,12 +77,19 @@
   // Inlined into the page, possibly more than once: ids must not clash.
   const uid = $props.id();
   const inkClipId = `note-ink-${uid}`;
-  const empty = $derived(note.text.trim() === "");
+  const texts = $derived(columnTexts(note));
+  const columned = $derived(texts.length > 1);
+  /** Room between columns, with a faint rule down the middle of it. */
+  const columnGap = $derived(
+    columned && writing
+      ? Math.max(12, Math.min(40, (writing.right - writing.left) * 0.04))
+      : 0,
+  );
   const drawing = $derived(selected && mode === "draw");
 
-  /** Put the caret in the Note, ready to type. */
-  export function focus() {
-    textEl?.focus();
+  /** Put the caret in the Note, ready to type: in the first column, or another. */
+  export function focus(column = 0) {
+    textEls[column]?.focus();
   }
 
   // Words typed arrive here from the element itself; only words that change
@@ -84,14 +97,11 @@
   // caret would jump to the start with every key. Svelte renders nothing
   // inside the element, so there is no DOM of its own for this to upset.
   $effect(() => {
-    const text = note.text;
-    if (
-      textEl &&
-      document.activeElement !== textEl &&
-      textEl.innerText !== text
-    )
-      // eslint-disable-next-line svelte/no-dom-manipulating
-      textEl.innerText = text;
+    texts.forEach((text, i) => {
+      const el = textEls[i];
+      if (el && document.activeElement !== el && el.innerText !== text)
+        el.innerText = text;
+    });
   });
 
   /**
@@ -99,24 +109,33 @@
    * long one widens the text and shrinks it rather than spilling out.
    */
   function fit() {
-    if (!textEl || !writingBox) return;
-    const maxWidth = writingBox.clientWidth;
+    const els = textEls.slice(0, texts.length).filter(Boolean);
+    if (els.length === 0 || !writingBox) return;
     const maxHeight = writingBox.clientHeight;
+    const setSize = (size: number) => {
+      for (const el of els) el.style.fontSize = `${size}px`;
+    };
+    // Each column is checked against its own share of the space.
+    const fits = () =>
+      els.every(
+        (el) =>
+          el.scrollHeight <= el.parentElement!.clientHeight &&
+          el.scrollWidth <= el.parentElement!.clientWidth,
+      );
     let low = 8;
     let high = Math.max(low, maxHeight * 0.62);
     for (let i = 0; i < 12; i++) {
       const size = (low + high) / 2;
-      textEl.style.fontSize = `${size}px`;
-      if (textEl.scrollHeight <= maxHeight && textEl.scrollWidth <= maxWidth)
-        low = size;
+      setSize(size);
+      if (fits()) low = size;
       else high = size;
     }
-    textEl.style.fontSize = `${low}px`;
+    setSize(low);
   }
 
   $effect(() => {
     // Refit whenever the words, the space for them or the placeholder change.
-    void [note.text, writing, selected, chrome, drawing];
+    void [texts, writing, selected, chrome, drawing];
     fit();
   });
 
@@ -160,6 +179,13 @@
     if (event.button !== 0) return;
     event.preventDefault();
     const wasSelected = selected;
+    // The column pressed in, so letting go types there.
+    const column = Math.max(
+      0,
+      textEls.findIndex((el) =>
+        el?.parentElement?.contains(event.target as Node),
+      ),
+    );
     onselect();
     const start = { x: event.clientX, y: event.clientY, box: { ...box } };
     const { width: stageWidth, height: stageHeight } = stage();
@@ -202,7 +228,7 @@
       target.removeEventListener("pointercancel", onUp);
       if (draft) onchange(draft);
       draft = null;
-      if (!moved && !wasSelected && mode === "type") focus();
+      if (!moved && !wasSelected && mode === "type") focus(column);
     };
     target.addEventListener("pointermove", onMove);
     target.addEventListener("pointerup", onUp);
@@ -308,38 +334,49 @@
   {#if writing}
     <div
       bind:this={writingBox}
-      class="absolute flex items-center justify-center"
+      class="note-columns absolute flex"
       style="left:{writing.left}px; top:{writing.top}px; width:{writing.right -
-        writing.left}px; height:{writing.bottom - writing.top}px;"
+        writing.left}px; height:{writing.bottom -
+        writing.top}px; --column-gap:{columnGap}px;"
     >
-      <!-- Pressing the words types in them rather than dragging the Note,
-           once it is chosen. -->
-      <div
-        bind:this={textEl}
-        class="note-text w-full text-center"
-        class:cursor-text={selected}
-        class:select-text={selected}
-        contenteditable="plaintext-only"
-        role="textbox"
-        tabindex="0"
-        aria-multiline="true"
-        aria-label={t("notes.text")}
-        data-empty={empty}
-        data-placeholder={selected && chrome && !drawing
-          ? t("notes.placeholder")
-          : ""}
-        onpointerdown={(event) => {
-          if (selected) event.stopPropagation();
-        }}
-        onfocus={onselect}
-        oninput={() => {
-          onchange({ text: textEl!.innerText });
-          fit();
-        }}
-        onkeydown={(event) => {
-          if (event.key === "Escape") textEl!.blur();
-        }}
-      ></div>
+      {#each texts as text, i (i)}
+        <div
+          class="note-column relative flex min-w-0 flex-1 justify-center"
+          class:items-center={!columned}
+        >
+          <!-- Pressing the words types in them rather than dragging the Note,
+               once it is chosen. -->
+          <div
+            bind:this={textEls[i]}
+            class="note-text w-full text-center"
+            class:h-full={columned}
+            class:cursor-text={selected}
+            class:select-text={selected}
+            contenteditable="plaintext-only"
+            role="textbox"
+            tabindex="0"
+            aria-multiline="true"
+            aria-label={columned
+              ? t("notes.column", { n: i + 1 })
+              : t("notes.text")}
+            data-empty={text.trim() === ""}
+            data-placeholder={selected && chrome && !drawing
+              ? t("notes.placeholder")
+              : ""}
+            onpointerdown={(event) => {
+              if (selected) event.stopPropagation();
+            }}
+            onfocus={onselect}
+            oninput={() => {
+              onchange(withColumnText(note, i, textEls[i].innerText));
+              fit();
+            }}
+            onkeydown={(event) => {
+              if (event.key === "Escape") textEls[i].blur();
+            }}
+          ></div>
+        </div>
+      {/each}
     </div>
   {/if}
 

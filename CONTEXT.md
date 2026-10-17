@@ -56,7 +56,7 @@ hanging in the reef water, a readout panel floating in deep space, a slab of
 sandstone with a fossil in its border in the prehistoric Scene, a trail sign
 framed in logs in the forest, a board in a lashed bamboo frame hanging from
 lianas in the jungle, a block of sea ice with a pane of packed snow and
-icicles along its foot in the Arctic. Creatures pass behind a Note. A Note belongs to the
+icicles along its foot in the Arctic. Its words can be set in up to four columns, side by side. Creatures pass behind a Note. A Note belongs to the
 teacher and the Class, not the Session: Reset leaves it, and it stays where it
 is when the Scene changes, taking on the new Scene's look. Each Class has its
 own Notes.

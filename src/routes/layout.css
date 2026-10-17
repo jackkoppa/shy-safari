@@ -966,6 +966,24 @@ html[data-scene="space"]:not(:has(.scene-stage)) body {
   caret-color: var(--ink);
 }
 
+.note-columns {
+  gap: var(--column-gap, 0);
+}
+
+/* A faint rule between columns, in the Note's own ink. */
+.note-column + .note-column::before {
+  content: "";
+  position: absolute;
+  top: 4%;
+  bottom: 4%;
+  left: calc(var(--column-gap) / -2 - 1.5px);
+  width: 3px;
+  border-radius: 999px;
+  background: var(--ink);
+  opacity: 0.22;
+  pointer-events: none;
+}
+
 .note-text[data-empty="true"]::before {
   content: attr(data-placeholder);
   opacity: 0.4;

@@ -15,6 +15,7 @@
 
 import { browser } from "$app/environment";
 import { classes } from "$lib/classes/classes.svelte";
+import { columnCount } from "./columns";
 
 /** The pens on offer. `dark` is each Scene's own ink. */
 export const INKS = ["dark", "red", "blue", "green"] as const;
@@ -33,7 +34,12 @@ export interface Note {
   y: number;
   width: number;
   height: number;
+  /** The words, or with more than one column, the first column's. */
   text: string;
+  /** How many columns the words are set in, side by side. See `columns.ts`. */
+  columns: number;
+  /** The words in the second column onwards, kept when a column is hidden. */
+  moreText: string[];
   /** The ink the text is written in, and the next stroke drawn. */
   ink: Ink;
   strokes: Stroke[];
@@ -95,6 +101,10 @@ function read(): Note[] {
     return saved.filter(isNote).map((note) => ({
       ...note,
       ...fitBox(note),
+      columns: columnCount(note.columns),
+      moreText: Array.isArray(note.moreText)
+        ? note.moreText.map((text) => (typeof text === "string" ? text : ""))
+        : [],
       ink: INKS.includes(note.ink) ? note.ink : "dark",
       mode: note.mode === "draw" ? "draw" : "type",
     }));
@@ -143,6 +153,8 @@ class Notes {
       id: Math.max(0, ...this.all.map((other) => other.id)) + 1,
       ...box,
       text: "",
+      columns: 1,
+      moreText: [],
       ink: "dark",
       strokes: [],
       mode: "type",
