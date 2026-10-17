@@ -1,0 +1,41 @@
+name: Deploy to GitHub Pages
+
+# This fork's own deployment, at shysafari.jackkoppa.com. Every push to main
+# builds the site and publishes it to the gh-pages branch, which GitHub Pages
+# serves. It only runs in this fork, so it does nothing if it is ever carried
+# upstream, where Vercel deploys the site instead.
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: deploy-pages
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    if: github.repository == 'jackkoppa/shy-safari'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: oven-sh/setup-bun@v2
+      - run: bun install --frozen-lockfile
+      - run: bun test
+      - run: bun run build
+      # GitHub Pages hides folders starting with "_", such as SvelteKit's
+      # _app, unless Jekyll is turned off.
+      - run: touch build/.nojekyll
+      - uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./build
+          publish_branch: gh-pages
+          force_orphan: true
+          # Written into gh-pages as the CNAME file, which keeps the custom
+          # domain set in the repository's Pages settings.
+          cname: shysafari.jackkoppa.com
