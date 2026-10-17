@@ -10,6 +10,7 @@
    */
 
   import { t, tIn, type UiKey } from "$lib/i18n/index.svelte";
+  import { MAX_COLUMNS, widenFor } from "$lib/notes/columns";
   import {
     INKS,
     notes,
@@ -68,6 +69,20 @@
     choose(note.id);
     // Once it is on screen.
     requestAnimationFrame(() => views[note.id]?.focus());
+  }
+
+  /**
+   * Set the chosen Note's words in `count` columns, widening it if each
+   * column would be too narrow to read, and put the caret in the first
+   * column just added.
+   */
+  function setColumns(count: number) {
+    if (!selected) return;
+    const id = selected.id;
+    const firstAdded = selected.columns;
+    notes.update(id, { columns: count, ...widenFor(selected, count) });
+    if (count > firstAdded && mode === "type")
+      requestAnimationFrame(() => views[id]?.focus(firstAdded));
   }
 
   function choose(id: number | null) {
@@ -215,6 +230,45 @@
                   : 'ring-1 ring-slate-900/20 ring-offset-0'}"
                 style="background:{scene.note.inks[ink]}"
               ></span>
+            </button>
+          {/each}
+        </div>
+
+        <!-- Side-by-side columns of words, each typed in on its own. -->
+        <div
+          class="flex rounded-full border border-slate-300 p-0.5"
+          role="group"
+          aria-label={t("notes.columns")}
+        >
+          {#each Array.from({ length: MAX_COLUMNS }, (_, i) => i + 1) as count (count)}
+            {@const label =
+              count === 1
+                ? t("notes.oneColumn")
+                : t("notes.columnCount", { count })}
+            <button
+              class="grid h-8 w-9 place-items-center rounded-full {selected.columns ===
+              count
+                ? 'bg-slate-900 text-white'
+                : 'text-slate-700 hover:bg-slate-100'}"
+              aria-label={label}
+              title={label}
+              aria-pressed={selected.columns === count}
+              onclick={() => setColumns(count)}
+            >
+              <svg
+                viewBox="0 0 24 24"
+                class="size-5"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linejoin="round"
+                aria-hidden="true"
+              >
+                <rect x="3" y="4" width="18" height="16" rx="2" />
+                {#each Array.from({ length: count - 1 }, (_, i) => 3 + (18 * (i + 1)) / count) as x (x)}
+                  <path d="M{x} 4v16" />
+                {/each}
+              </svg>
             </button>
           {/each}
         </div>

@@ -95,6 +95,10 @@ const en = {
     "notes.undo": "Undo",
     "notes.clear": "Clear drawing",
     "notes.delete": "Delete",
+    "notes.columns": "Columns",
+    "notes.oneColumn": "1 column",
+    "notes.columnCount": "{count} columns",
+    "notes.column": "Column {n}",
     "controls.pause": "Pause",
     "controls.pauseHint":
       "Stop listening for a moment, so you can talk to the class",
@@ -643,6 +647,10 @@ const es = {
     "notes.undo": "Deshacer",
     "notes.clear": "Borrar dibujo",
     "notes.delete": "Eliminar",
+    "notes.columns": "Columnas",
+    "notes.oneColumn": "1 columna",
+    "notes.columnCount": "{count} columnas",
+    "notes.column": "Columna {n}",
     "controls.pause": "Pausar",
     "controls.pauseHint":
       "Dejar de escuchar un momento, para poder hablar con la clase",
@@ -1163,6 +1171,10 @@ const fr = {
     "notes.undo": "Annuler",
     "notes.clear": "Effacer le dessin",
     "notes.delete": "Supprimer",
+    "notes.columns": "Colonnes",
+    "notes.oneColumn": "1 colonne",
+    "notes.columnCount": "{count} colonnes",
+    "notes.column": "Colonne {n}",
     "controls.pause": "Pause",
     "controls.pauseHint":
       "Arrêter d’écouter un moment, pour pouvoir parler à la classe",
