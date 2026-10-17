@@ -1,0 +1,38 @@
+name: Publish a preview to GitHub Pages
+
+# A preview of the branch being worked on, for trying it out before it is
+# proposed upstream. Only runs in the fork it was set up for; the production
+# site is still built by Vercel, without a base path.
+on:
+  push:
+    branches:
+      - "claude/**"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: preview-pages
+  cancel-in-progress: true
+
+jobs:
+  publish:
+    if: github.repository == 'jackkoppa/shy-safari'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: oven-sh/setup-bun@v2
+      - run: bun install --frozen-lockfile
+      - run: bun run build
+        env:
+          BASE_PATH: /${{ github.event.repository.name }}
+      # GitHub Pages hides folders starting with "_", such as SvelteKit's
+      # _app, unless Jekyll is turned off.
+      - run: touch build/.nojekyll
+      - uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./build
+          publish_branch: gh-pages
+          force_orphan: true
