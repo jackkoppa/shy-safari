@@ -18,6 +18,12 @@ const creatureFiles = import.meta.glob("./creatures/*.svg", {
   eager: true,
 }) as Record<string, string>;
 
+const listeningFiles = import.meta.glob("./listening/*.svg", {
+  query: "?raw",
+  import: "default",
+  eager: true,
+}) as Record<string, string>;
+
 const ambientFiles = import.meta.glob("./ambient/*.svg", {
   query: "?raw",
   import: "default",
@@ -35,6 +41,12 @@ function bySlug(files: Record<string, string>): Record<string, string> {
 
 /** Creature artwork keyed by roster slug. */
 export const CREATURE_ART = bySlug(creatureFiles);
+
+/**
+ * Creatures turned to face the class while the teacher talks, keyed by roster
+ * slug. Not every Creature has one yet; those without just stop and turn.
+ */
+export const LISTENING_ART = bySlug(listeningFiles);
 
 /** Ambient Life and backdrop artwork keyed by filename stem. */
 export const AMBIENT_ART = bySlug(ambientFiles);

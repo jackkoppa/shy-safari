@@ -8,6 +8,7 @@
  * teacher's trust in the tool.
  */
 
+import { cancelFrame, requestFrame } from "$lib/frames";
 import { applyCalibration, type Calibration } from "./calibration";
 
 export type MicrophoneStatus =
@@ -144,13 +145,13 @@ export class Microphone {
           windowFrames = 0;
           lastPublished = now;
         }
-        frame = requestAnimationFrame(measure);
+        frame = requestFrame(measure);
       };
       measure();
 
       const activeStream = stream;
       this.#teardown = () => {
-        cancelAnimationFrame(frame);
+        cancelFrame(frame);
         for (const track of activeStream.getTracks()) track.stop();
         void context.close();
       };

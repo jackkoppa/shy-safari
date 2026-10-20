@@ -5,10 +5,11 @@
  */
 
 import { describe, expect, it } from "bun:test";
-import { readFileSync, readdirSync } from "node:fs";
+import { existsSync, readFileSync, readdirSync } from "node:fs";
 import { join } from "node:path";
 import { ARCTIC_ROSTER } from "./arctic/roster";
 import { FOREST_ROSTER } from "./forest/roster";
+import { HALLOWEEN_ROSTER } from "./halloween/roster";
 import { JUNGLE_ROSTER } from "./jungle/roster";
 import { PREHISTORIC_ROSTER } from "./prehistoric/roster";
 import { REEF_ROSTER } from "./reef/roster";
@@ -24,26 +25,40 @@ const ROSTERS: Record<SceneId, CreatureDef[]> = {
   forest: FOREST_ROSTER,
   jungle: JUNGLE_ROSTER,
   arctic: ARCTIC_ROSTER,
+  halloween: HALLOWEEN_ROSTER,
 };
 
 /** The Scenes whose art brief (§9, §10) prefixes every id with the Scene. */
 const SHADED_SCENES: SceneId[] = ["space", "prehistoric"];
 
-function artDir(sceneId: SceneId, kind: "creatures" | "ambient") {
+type ArtKind = "creatures" | "ambient" | "listening";
+
+function artDir(sceneId: SceneId, kind: ArtKind) {
   return join(import.meta.dir, sceneId, kind);
 }
 
-function svgFiles(sceneId: SceneId, kind: "creatures" | "ambient") {
+function svgFiles(sceneId: SceneId, kind: ArtKind) {
+  // Only some Scenes have Creatures drawn listening yet.
+  if (!existsSync(artDir(sceneId, kind))) return [];
   return readdirSync(artDir(sceneId, kind)).filter((file) =>
     file.endsWith(".svg"),
   );
 }
+
+const viewBox = (source: string) => source.match(/viewBox="([^"]*)"/)?.[1];
 
 for (const [sceneId, roster] of Object.entries(ROSTERS) as [
   SceneId,
   CreatureDef[],
 ][]) {
   describe(`${sceneId} artwork`, () => {
+    it("draws only Roster Creatures listening", () => {
+      const slugs = roster.map((def) => def.slug);
+      for (const file of svgFiles(sceneId, "listening")) {
+        expect(slugs).toContain(file.slice(0, -".svg".length));
+      }
+    });
+
     it("has exactly one file per Roster entry", () => {
       const files = svgFiles(sceneId, "creatures").map((file) =>
         file.slice(0, -".svg".length),
@@ -79,6 +94,31 @@ for (const [sceneId, roster] of Object.entries(ROSTERS) as [
         // twenty Creatures at once.
         expect(source).not.toMatch(/<filter|filter=|<mask|mask=/);
       });
+
+      // Swapped in for the Creature while Paused, so it must sit exactly
+      // where the Creature was and follow the same rules.
+      if (svgFiles(sceneId, "listening").includes(`${def.slug}.svg`)) {
+        it(`lines ${def.slug} listening up with ${def.slug}`, () => {
+          const listening = readFileSync(
+            join(artDir(sceneId, "listening"), `${def.slug}.svg`),
+            "utf8",
+          );
+          expect(viewBox(listening)).toBe(viewBox(read()));
+          const root = listening.match(/<svg[^>]*>/)?.[0] ?? "";
+          expect(root).not.toMatch(/\s(width|height)=/);
+          expect(listening).not.toContain("<style");
+          expect(listening).not.toContain("<image");
+          expect(listening).not.toContain("<text");
+          expect(listening).not.toMatch(/<filter|filter=|<mask|mask=/);
+          // It is on screen beside the standing version of its own kind.
+          const prefix = SHADED_SCENES.includes(sceneId)
+            ? `${sceneId}-${def.slug}-listening-`
+            : `${def.slug}-listening-`;
+          for (const [, id] of listening.matchAll(/\sid="([^"]*)"/g)) {
+            expect(id.startsWith(prefix)).toBe(true);
+          }
+        });
+      }
 
       it(`gives every id in ${def.slug} its own prefix`, () => {
         // Every Creature shares one document, so an id must say whose it is:

@@ -2,11 +2,16 @@
   /**
    * The list of Scenes to choose between, each with its picture, name and
    * the animals it brings. Shared by the menu in the bottom right and the
-   * one on the start card, so the two look the same.
+   * one on the start card, so the two look the same. Showing the list is
+   * what stops the buttons flagging new Scenes (`newScenes.svelte.ts`).
    */
 
+  import { onMount, untrack } from "svelte";
   import { t, type UiKey } from "$lib/i18n/index.svelte";
-  import { SCENES, type SceneId } from "$lib/scenes";
+  import { availableScenes, type SceneId } from "$lib/scenes";
+  import { newScenes } from "$lib/scenes/newScenes.svelte";
+  import { isLimited, sceneHint } from "$lib/scenes/halloween/wording";
+  import { today } from "$lib/today.svelte";
 
   let {
     id,
@@ -24,6 +29,12 @@
     /** The tallest the list may be, in pixels, before it scrolls. */
     maxHeight?: number;
   } = $props();
+
+  // Still badged while this list is open, though seen from now on.
+  const fresh = untrack(() =>
+    newScenes.unseen(today.day).map((scene) => scene.id),
+  );
+  onMount(() => newScenes.markSeen(today.day));
 </script>
 
 <div
@@ -34,7 +45,7 @@
     class="max-h-[50dvh] overflow-y-auto"
     style:max-height={maxHeight ? `${maxHeight}px` : undefined}
   >
-    {#each Object.values(SCENES) as scene (scene.id)}
+    {#each availableScenes(today.day) as scene (scene.id)}
       {@const current = scene.id === chosen}
       <li>
         <button
@@ -47,11 +58,24 @@
         >
           <img src={scene.icon} alt="" class="size-9 shrink-0" />
           <span class="min-w-0 flex-1">
-            <span class="block" class:font-semibold={current}
-              >{t(`scene.${scene.id}.name` as UiKey)}</span
-            >
+            <span class="flex flex-wrap items-center gap-x-1.5 gap-y-0.5">
+              <span class:font-semibold={current}
+                >{t(`scene.${scene.id}.name` as UiKey)}</span
+              >
+              {#if isLimited(scene.id)}
+                <span
+                  class="inline-flex h-[1.125rem] shrink-0 items-center rounded-full bg-orange-100 px-2 pt-px text-[0.625rem] leading-none font-semibold tracking-wide whitespace-nowrap text-orange-800 uppercase"
+                  >{t("hollow.limited")}</span
+                >
+              {:else if fresh.includes(scene.id)}
+                <span
+                  class="inline-flex h-[1.125rem] shrink-0 items-center rounded-full bg-sky-100 px-2 pt-px text-[0.625rem] leading-none font-semibold tracking-wide whitespace-nowrap text-sky-800 uppercase"
+                  >{t("scene.new")}</span
+                >
+              {/if}
+            </span>
             <span class="block text-xs text-slate-500"
-              >{t(`scene.${scene.id}.hint` as UiKey)}</span
+              >{sceneHint(scene.id, today.day)}</span
             >
           </span>
           {#if current}

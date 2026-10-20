@@ -6,8 +6,11 @@ import {
   fadeVisibility,
   fleeDirection,
   groundLine,
+  listenDelay,
+  listenFacing,
   stepFlee,
   stepMotion,
+  stepSettle,
   type MotionStyle,
 } from "./motion";
 
@@ -132,6 +135,52 @@ describe("stepFlee", () => {
     while (!stepFlee(state, "trot", 0.4, footprint, 1, 1 / 30)) {
       expect(state.y + footprint.height / 2).toBeCloseTo(groundLine(0.4, band));
     }
+  });
+});
+
+describe("stepSettle", () => {
+  for (const style of styles) {
+    it(`brings a ${style} Creature to rest within a second or two`, () => {
+      const random = seeded(3);
+      const state = createMotion(style, 0.4, 0.5, 0.5, footprint, random);
+      // Get it moving first.
+      for (let t = 0; t < 20; t += 1 / 30) {
+        stepMotion(state, style, 0.5, footprint, 1 / 30, random);
+      }
+      const start = state.x;
+      for (let t = 0; t < 2; t += 1 / 30) {
+        stepSettle(state, style, 0.5, footprint, 1 / 30);
+      }
+      expect(Math.hypot(state.vx, state.vy)).toBeLessThan(
+        MOTION_PROFILES[style].speed * 0.01,
+      );
+      // It finishes its step rather than sliding across the Scene.
+      expect(Math.abs(state.x - start)).toBeLessThan(0.05);
+      expect(state.x - footprint.width / 2).toBeGreaterThanOrEqual(0);
+      expect(state.x + footprint.width / 2).toBeLessThanOrEqual(1);
+    });
+  }
+});
+
+describe("listening", () => {
+  it("turns the middle of the Scene first and the edges last", () => {
+    const at = (x: number) =>
+      listenDelay({
+        ...createMotion("trot", 0.5, 0.5, 0.5, footprint, seeded(1)),
+        x,
+      });
+    expect(at(0.5)).toBeLessThan(at(0.3));
+    expect(at(0.3)).toBeLessThan(at(0.05));
+    expect(at(0.95)).toBeCloseTo(at(0.05));
+    expect(at(0.05)).toBeLessThan(1.2);
+  });
+
+  it("faces in towards the middle, unless it never turns round", () => {
+    const zebra = createMotion("trot", 0.5, 0.5, 0.5, footprint, seeded(1));
+    expect(listenFacing({ ...zebra, x: 0.2 })).toBe(1);
+    expect(listenFacing({ ...zebra, x: 0.8 })).toBe(-1);
+    const planet = { ...zebra, x: 0.8, facing: 1 as const, flips: false };
+    expect(listenFacing(planet)).toBe(1);
   });
 });
 

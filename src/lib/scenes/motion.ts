@@ -56,7 +56,12 @@ export type MotionStyle =
    * Arctic: swims along the open water between the ice, surfaced, with long
    * rests. Drawn from the waterline up, so its feet are the waterline.
    */
-  | "paddle";
+  | "paddle"
+  /**
+   * Pumpkin Hollow: a giant's slow walk along the back of the patch, with
+   * long stops to look about, so it towers over the pumpkins in front.
+   */
+  | "stride";
 
 interface Region {
   xMin: number;
@@ -109,6 +114,12 @@ export interface MotionProfile {
    * from a branch: the top of its box is on the line, not the bottom.
    */
   hangs?: boolean;
+  /**
+   * The depths it may arrive at, if not anywhere from far to near. A giant
+   * keeps near the front of its lane, so it never shrinks below the animals
+   * walking in front of it.
+   */
+  depths?: [number, number];
 }
 
 /** The sand in backdrop.svg, as fractions of Scene height. */
@@ -134,6 +145,12 @@ const BOUGH_UNDERSIDE = { top: 0.546, bottom: 0.556 };
  * backdrop, as fractions of Scene height: where a swimmer's waterline runs.
  */
 const OPEN_WATER = { top: 0.54, bottom: 0.598 };
+
+/**
+ * The back of the pumpkin patch in the Pumpkin Hollow backdrop, as fractions
+ * of Scene height: where a giant walks, behind everything nearer.
+ */
+const PATCH_BACK = { top: 0.6, bottom: 0.64 };
 
 /** Open sky, all the way down to the planet's limb at the bottom. */
 const SKY: Region = { xMin: 0.05, xMax: 0.95, yMin: 0.06, yMax: 0.86 };
@@ -423,6 +440,21 @@ export const MOTION_PROFILES: Record<MotionStyle, MotionProfile> = {
     ground: true,
     band: OPEN_WATER,
   },
+  stride: {
+    region: { xMin: 0.04, xMax: 0.96, yMin: 0, yMax: 1 },
+    speed: 0.007,
+    agility: 1,
+    reachX: 0.35,
+    reachY: 0,
+    restChance: 0.7,
+    rest: [6, 14],
+    pulse: 0,
+    flips: true,
+    tilts: false,
+    ground: true,
+    band: PATCH_BACK,
+    depths: [0.85, 1],
+  },
 };
 
 export interface MotionState {
@@ -628,6 +660,54 @@ export function stepMotion(
     state.facing = state.vx > 0 ? 1 : -1;
   }
   return state;
+}
+
+/** How quickly a Creature that has stopped to listen comes to rest, per second. */
+const SETTLE_BRAKING = 4;
+
+/**
+ * Advance a Creature that has stopped to listen to the teacher. It finishes
+ * its step and eases to a halt where it is, rather than freezing mid-stride
+ * the way Too Loud stops it. Mutates and returns `state`.
+ */
+export function stepSettle(
+  state: MotionState,
+  style: MotionStyle,
+  depth: number,
+  footprint: Footprint,
+  dt: number,
+): MotionState {
+  const box = bounds(MOTION_PROFILES[style], footprint, depth);
+  state.age += dt;
+  const brake = Math.min(1, dt * SETTLE_BRAKING);
+  state.vx -= state.vx * brake;
+  state.vy -= state.vy * brake;
+  state.x = clamp(state.x + state.vx * dt, box.xMin, box.xMax);
+  state.y = clamp(
+    state.y + (state.vy * dt) / footprint.aspect,
+    box.yMin,
+    box.yMax,
+  );
+  return state;
+}
+
+/**
+ * Seconds a Creature waits, once the teacher pauses, before it turns to
+ * listen. The middle of the Scene turns first and the edges last, so the
+ * whole Scene turns in a ripple rather than all at once.
+ */
+export function listenDelay(state: MotionState): number {
+  return 0.35 + Math.abs(state.x - 0.5) * 1.4;
+}
+
+/**
+ * Which way a listening Creature faces: in towards the middle of the Scene,
+ * so everyone gathers their attention on the same spot. Anything that never
+ * turns round keeps the way it already faces.
+ */
+export function listenFacing(state: MotionState): -1 | 1 {
+  if (!state.flips) return state.facing;
+  return state.x < 0.5 ? 1 : -1;
 }
 
 /** How fast a frightened Creature bolts, in Scene widths per second. */

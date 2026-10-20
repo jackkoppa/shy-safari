@@ -3,17 +3,24 @@
    * Which Scene to start in, on the start card. A drop-down rather than a
    * row of buttons, now that there are too many Scenes to take in at a
    * glance; it opens the same list as the menu in the bottom right.
+   *
+   * Tagged "New" while the list has a new Scene in it that the teacher has
+   * not seen yet (`newScenes.svelte.ts`).
    */
 
   import type { App } from "$lib/app.svelte";
   import { t, type UiKey } from "$lib/i18n/index.svelte";
   import type { SceneId } from "$lib/scenes";
+  import { newScenes } from "$lib/scenes/newScenes.svelte";
   import SceneMenu from "./SceneMenu.svelte";
+  import { sceneHint } from "$lib/scenes/halloween/wording";
+  import { today } from "$lib/today.svelte";
 
   let { app }: { app: App } = $props();
 
   let open = $state(false);
   let container: HTMLElement;
+  let flagged = $derived(newScenes.unseen(today.day).length > 0);
 
   /**
    * The start card sits mid-screen, so the list opens whichever way has
@@ -54,12 +61,14 @@
   <button
     type="button"
     class={[
-      "flex w-full items-center gap-3 rounded-2xl border bg-white py-1.5 pr-3 pl-2 text-left text-sm hover:bg-slate-50",
+      "relative flex w-full items-center gap-3 rounded-2xl border bg-white py-1.5 pr-3 pl-2 text-left text-sm hover:bg-slate-50",
       open ? "border-slate-900" : "border-slate-300",
     ]}
     aria-expanded={open}
     aria-controls="start-scene-menu"
-    aria-label="{t('scene.change')}: {t(`scene.${app.scene.id}.name` as UiKey)}"
+    aria-label="{t('scene.change')}: {t(
+      `scene.${app.scene.id}.name` as UiKey,
+    )}{flagged ? ` (${t('scene.newScenes')})` : ''}"
     onclick={toggle}
   >
     <span
@@ -72,7 +81,7 @@
           >{t(`scene.${app.scene.id}.name` as UiKey)}</span
         >
         <span class="block truncate text-xs text-slate-500"
-          >{t(`scene.${app.scene.id}.hint` as UiKey)}</span
+          >{sceneHint(app.scene.id, today.day)}</span
         >
       </span>
     </span>
@@ -91,6 +100,12 @@
     >
       <path d="m6 9 6 6 6-6" />
     </svg>
+    {#if flagged && !open}
+      <span
+        class="pointer-events-none absolute -top-2 -right-2 rounded-full bg-orange-500 px-1.5 py-px text-[0.65rem] font-semibold tracking-wide text-white uppercase shadow ring-2 ring-white"
+        aria-hidden="true">{t("scene.new")}</span
+      >
+    {/if}
   </button>
 
   {#if open}

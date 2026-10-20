@@ -21,6 +21,7 @@
     type VolumeGoalPreset,
   } from "$lib/settings/settings.svelte";
   import Calibration from "./Calibration.svelte";
+  import HalloweenPreview from "./HalloweenPreview.svelte";
   import LevelMeter from "./LevelMeter.svelte";
 
   let { app, onclose }: { app: App; onclose: () => void } = $props();
@@ -36,6 +37,8 @@
 
   /** Run away first: it is the default. */
   const LOUD_RESPONSES: LoudResponse[] = ["flee", "pause"];
+
+  let previewOpen = $state(false);
 </script>
 
 <div
@@ -246,10 +249,37 @@
       >
         {tIn(app.scene.id, "settings.summon")}
       </button>
+      {#if app.scene.id === "halloween"}
+        <details class="group">
+          <summary
+            class="flex w-fit cursor-pointer list-none items-center gap-1 text-xs font-medium text-slate-500 hover:text-slate-700 [&::-webkit-details-marker]:hidden"
+          >
+            <svg
+              viewBox="0 0 16 16"
+              class="size-3 transition-transform group-open:rotate-90"
+              fill="currentColor"
+              aria-hidden="true"
+            >
+              <path d="M6 3.5 11 8l-5 4.5z" />
+            </svg>
+            {t("settings.advanced")}
+          </summary>
+          <button
+            class="mt-2 rounded-md border border-slate-400 px-3 py-1.5 text-sm font-medium hover:bg-slate-50"
+            onclick={() => (previewOpen = true)}
+          >
+            {t("settings.previewHalloween")}
+          </button>
+        </details>
+      {/if}
     </section>
 
     <p class="mt-6 text-xs text-slate-500">
       {t("settings.savedNote")}
     </p>
   </aside>
+
+  {#if previewOpen}
+    <HalloweenPreview onclose={() => (previewOpen = false)} />
+  {/if}
 </div>
