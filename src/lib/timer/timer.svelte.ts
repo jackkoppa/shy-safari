@@ -242,15 +242,23 @@ export class ClassTimer {
     // prerendered with the defaults and hydration expects to find those.
     this.#restore();
 
-    const interval = setInterval(() => {
-      if (this.#stored.countdown.status !== "running") return;
-      this.#now = Date.now();
-      const next = advance(this.#stored.countdown, this.#now);
-      if (next.status === "done") {
-        this.#set({ countdown: next });
-        this.#onring();
-      }
-    }, TICK_MS);
+    const interval = setInterval(() => this.check(), TICK_MS);
     return () => clearInterval(interval);
+  }
+
+  /**
+   * Catch up with the clock, and chime if the countdown has run out. The
+   * interval above calls it, but a hidden tab's intervals can be held back
+   * for up to a minute, so while the Scene floats over another tab the
+   * floating window's frames call it too.
+   */
+  check() {
+    if (this.#stored.countdown.status !== "running") return;
+    this.#now = Date.now();
+    const next = advance(this.#stored.countdown, this.#now);
+    if (next.status === "done") {
+      this.#set({ countdown: next });
+      this.#onring();
+    }
   }
 }

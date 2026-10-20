@@ -5,9 +5,20 @@
 @import "../lib/scenes/forest/scene.css";
 @import "../lib/scenes/jungle/scene.css";
 @import "../lib/scenes/arctic/scene.css";
+@import "../lib/scenes/halloween/scene.css";
+@import "../lib/scenes/halloween/entrance.css";
 
 /* A phone on its side: too short for the start card at full size. */
 @custom-variant short (@media (max-height: 500px));
+
+/* Tailwind 4 leaves buttons with the plain arrow; give them the hand, so
+   the teacher can see what is clickable. */
+@layer base {
+  button:not(:disabled),
+  [role="button"]:not(:disabled) {
+    cursor: pointer;
+  }
+}
 
 /*
  * The Scene palettes. The reef group is the water, sand and coral used by
@@ -139,6 +150,17 @@ html[data-scene="space"]:not(:has(.scene-stage)) body {
   container-type: size;
   --wu: max(1cqw, 1.3333cqh);
   --world-left: calc(50cqw - 50 * var(--wu));
+}
+
+/*
+ * The Scene floating in a Picture-in-Picture window, which the teacher can
+ * size to anything from a corner of the slides up. The Scene already scales
+ * itself (`--wu`); this scales what sits over it, which is all sized in rem,
+ * so the Noise Meter and the pause button never crowd a small window or look
+ * lost in a large one.
+ */
+html.floating {
+  font-size: clamp(10px, 1.5vmin + 6px, 16px);
 }
 
 /* Controls over the Scene stay clear of a phone's notch and home bar, which
@@ -344,6 +366,87 @@ html[data-scene="space"]:not(:has(.scene-stage)) body {
 
 .arrival-ring {
   animation: arrival-ring 1800ms ease-out forwards;
+}
+
+/* --- Listening ---------------------------------------------------------- */
+
+/* Paused: the teacher is talking. Each Creature comes to a calm stop, turns
+   to face the class with a small perk-up, and holds still to listen, ears up
+   and head raised, until the talking is over (Creature.svelte). */
+@keyframes listen-turn {
+  0% {
+    transform: scale(1, 1);
+  }
+  20% {
+    transform: scale(0.84, 1.05);
+  }
+  45% {
+    transform: translateY(-6%) scale(1.02, 1);
+  }
+  70% {
+    transform: translateY(0) scale(1.05, 0.95);
+  }
+  100% {
+    transform: scale(1, 1);
+  }
+}
+
+/* Talking over: a quick shake, like a dog getting up, then back to it. */
+@keyframes listen-release {
+  0%,
+  100% {
+    transform: rotate(0deg);
+  }
+  20% {
+    transform: rotate(-5deg);
+  }
+  40% {
+    transform: rotate(4deg);
+  }
+  60% {
+    transform: rotate(-3deg);
+  }
+  80% {
+    transform: rotate(1.5deg);
+  }
+}
+
+.poser {
+  transform-origin: bottom center;
+}
+
+.poser.turning {
+  animation: listen-turn 650ms ease-out;
+}
+
+.poser.shaking {
+  animation: listen-release 600ms ease-in-out;
+}
+
+.swimmer[data-listening="true"] .part-ears {
+  animation: none;
+  transform: scaleY(1.12);
+}
+
+.swimmer[data-listening="true"] .part-head {
+  animation: none;
+  transform: rotate(-4deg);
+}
+
+/* Still alive while it listens: a slow, calm swish rather than none. */
+.swimmer[data-listening="true"] .part-tail {
+  animation-duration: 2400ms;
+}
+
+.swimmer[data-listening="true"] .part-wings {
+  animation-duration: 3200ms;
+}
+
+/* Deep space has no faces to turn: everything just holds still while
+   Paused, its spins and pulses too, but with none of Too Loud's haze. */
+.swimmer[data-holding="true"],
+.swimmer[data-holding="true"] * {
+  animation-play-state: paused;
 }
 
 /* --- Running away ------------------------------------------------------- */
@@ -889,6 +992,8 @@ html[data-scene="space"]:not(:has(.scene-stage)) body {
   .creature .part-body,
   .creature .part-tentacles,
   .creature .part-arms,
+  .poser.turning,
+  .poser.shaking,
   .paused-pulse {
     animation: none;
   }

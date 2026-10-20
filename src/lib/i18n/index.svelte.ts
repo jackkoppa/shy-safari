@@ -32,6 +32,14 @@ const en = {
     "common.done": "Done",
     "fullScreen.enter": "Full screen",
     "fullScreen.exit": "Exit full screen",
+    "float.open": "Float over other tabs",
+    "float.openHint":
+      "Float the scene in a small window over your slides or other tabs",
+    "float.failed": "The floating window could not be opened.",
+    "floating.title": "Shy Safari is floating",
+    "floating.instructions":
+      "The scene is in its own window over your other tabs, and keeps listening to the room. Keep this tab open: the window's back-to-tab button brings it back here.",
+    "floating.return": "Bring Shy Safari back here",
     "start.shy": "Shh… these animals are shy!",
     "start.explain":
       "If it gets too loud, they stay hidden. When the room is calm again, they'll start coming out.",
@@ -40,6 +48,8 @@ const en = {
       "Your browser will ask to use the microphone. Audio is measured on this computer and never recorded or sent anywhere.",
     "scene.label": "Scene",
     "scene.change": "Change scene",
+    "scene.new": "New",
+    "scene.newScenes": "New scenes",
     "scene.savanna.name": "Savanna",
     "scene.savanna.hint": "Zebras, giraffes and lions",
     "scene.reef.name": "Coral reef",
@@ -54,6 +64,20 @@ const en = {
     "scene.jungle.hint": "Sloths, toucans and jaguars",
     "scene.arctic.name": "Arctic",
     "scene.arctic.hint": "Polar bears, seals and narwhals",
+    "scene.halloween.name": "Halloween",
+    "scene.halloween.hint": "Bats, ghosts and jack-o'-lanterns",
+    "hollow.limited": "Limited time",
+    "hollow.daily": "A new animal every school day",
+    "hollow.closesIn": "Leaves in {days} days",
+    "hollow.lastDay": "Last day!",
+    "hollow.newToday": "Someone new is in the pumpkin patch today…",
+    "hollow.signClosesIn": "The pumpkin patch closes in {days} days",
+    "hollow.signLastDay": "Last day in the pumpkin patch",
+    "collection.unlocksInDays": "Unlocks in {days}\u00a0days",
+    "collection.unlocksIn": "Unlocks in {time}",
+    "collection.comingSoon": "Coming soon",
+    "collection.newToday": "New today",
+    "collection.toCome": "{count} still to come",
     "controls.reset": "Reset",
     "controls.confirmReset": "Confirm reset",
     "controls.resetQuestion": "Empty this scene and start over?",
@@ -152,6 +176,11 @@ const en = {
     "counter.label": "Animals arrived: {count}",
     "settings.tryIt": "Try it out",
     "settings.summon": "Bring out every animal",
+    "settings.advanced": "Advanced",
+    "settings.previewHalloween": "Preview Halloween characters",
+    "preview.title": "Halloween characters",
+    "preview.opening": "Out from the start",
+    "preview.unlocks": "Unlocks {date}",
     "settings.savedNote":
       "Settings are saved on this computer only. Microphone audio never leaves the device.",
     "goal.silent.label": "Silent",
@@ -434,6 +463,23 @@ const en = {
     "polar-bear": "Polar bear",
     narwhal: "Narwhal",
     "bowhead-whale": "Bowhead whale",
+    "harvest-mouse": "Harvest mouse",
+    "garden-spider": "Garden spider",
+    toad: "Toad",
+    "brown-bat": "Little brown bat",
+    crow: "Crow",
+    "barn-owl": "Barn owl",
+    "black-cat": "Black cat",
+    "little-ghost": "Little ghost",
+    "cloudy-moon": "Cloudy moon",
+    gourdling: "Gourdling",
+    scarecrow: "Scarecrow",
+    mummy: "Mummy",
+    vampire: "Vampire",
+    gargoyle: "Gargoyle",
+    "howling-wolf": "Howling wolf",
+    "great-boo": "The Great Boo",
+    "jack-o-lantern": "Jack O. Lantern",
   },
   // One line about each prehistoric Creature, shown in the collection.
   facts: {
@@ -503,6 +549,38 @@ const en = {
       "Its tusk is a tooth that grows through its upper lip, spiralling, up to 3 m long.",
     "bowhead-whale":
       "It can break through ice with its huge head, and can live for more than 200 years.",
+    "harvest-mouse":
+      "One of the smallest mice in the world, it can wrap its tail round a stalk like an extra hand.",
+    "garden-spider":
+      "It spins a brand new web almost every night, and often eats the old one.",
+    toad: "You can’t catch warts from a toad: its bumps are just the way its skin grows.",
+    "brown-bat":
+      "It finds insects in the dark by their echoes, and can catch hundreds in an hour.",
+    crow: "Crows can recognise human faces, and remember them for years.",
+    "barn-owl":
+      "Its heart-shaped face gathers sound like a dish, so it can hunt in total darkness.",
+    "black-cat":
+      "In Scotland and Japan, a black cat crossing your path is said to bring good luck.",
+    "little-ghost":
+      "A ghost in a sheet is one of the oldest Halloween costumes there is.",
+    "cloudy-moon":
+      "The Moon always shows Earth the same face; nobody saw its far side until 1959.",
+    gourdling:
+      "Pumpkins are fruit, not vegetables: they grow from flowers and are full of seeds.",
+    scarecrow:
+      "Farmers have been making scarecrows to keep birds off their crops for thousands of years.",
+    mummy:
+      "Ancient Egyptians wrapped a mummy in hundreds of metres of linen bandages.",
+    vampire:
+      "Real vampire bats live in Central and South America, and share their food with friends who go hungry.",
+    gargoyle:
+      "Real gargoyles are rain spouts: water runs out of their mouths, away from the walls.",
+    "howling-wolf":
+      "Wolves howl to call their pack together, and a howl can carry for miles.",
+    "great-boo":
+      "People have been shouting “Boo!” to make each other jump since at least the 1700s.",
+    "jack-o-lantern":
+      "The first jack-o’-lanterns were carved from turnips in Ireland; in America, pumpkins took over.",
   },
 } as const;
 
@@ -589,6 +667,14 @@ const es = {
     "common.done": "Listo",
     "fullScreen.enter": "Pantalla completa",
     "fullScreen.exit": "Salir de pantalla completa",
+    "float.open": "Flotar sobre otras pestañas",
+    "float.openHint":
+      "Mostrar la escena en una ventana pequeña sobre tus diapositivas u otras pestañas",
+    "float.failed": "No se pudo abrir la ventana flotante.",
+    "floating.title": "Shy Safari está flotando",
+    "floating.instructions":
+      "La escena está en su propia ventana sobre tus otras pestañas y sigue escuchando el aula. Deja esta pestaña abierta: el botón de la ventana para volver a la pestaña la trae de vuelta aquí.",
+    "floating.return": "Traer Shy Safari de vuelta aquí",
     "start.shy": "Shh… ¡estos animales son tímidos!",
     "start.explain":
       "Si hay demasiado ruido, se quedan escondidos. Cuando el aula vuelva a estar tranquila, empezarán a salir.",
@@ -597,6 +683,8 @@ const es = {
       "El navegador pedirá permiso para usar el micrófono. El sonido se mide en esta computadora y nunca se graba ni se envía a ningún sitio.",
     "scene.label": "Escena",
     "scene.change": "Cambiar escena",
+    "scene.new": "Nuevo",
+    "scene.newScenes": "Escenas nuevas",
     "scene.savanna.name": "Sabana",
     "scene.savanna.hint": "Cebras, jirafas y leones",
     "scene.reef.name": "Arrecife de coral",
@@ -611,6 +699,20 @@ const es = {
     "scene.jungle.hint": "Perezosos, tucanes y jaguares",
     "scene.arctic.name": "Ártico",
     "scene.arctic.hint": "Osos polares, focas y narvales",
+    "scene.halloween.name": "Halloween",
+    "scene.halloween.hint": "Murciélagos, fantasmas y calabazas",
+    "hollow.limited": "Por tiempo limitado",
+    "hollow.daily": "Un animal nuevo cada día de clase",
+    "hollow.closesIn": "Se va en {days} días",
+    "hollow.lastDay": "¡Último día!",
+    "hollow.newToday": "Hoy hay alguien nuevo entre las calabazas…",
+    "hollow.signClosesIn": "Las calabazas se despiden en {days} días",
+    "hollow.signLastDay": "Último día entre las calabazas",
+    "collection.unlocksInDays": "Se desbloquea en {days}\u00a0días",
+    "collection.unlocksIn": "Se desbloquea en {time}",
+    "collection.comingSoon": "Muy pronto",
+    "collection.newToday": "Nuevo hoy",
+    "collection.toCome": "faltan {count}",
     "controls.reset": "Reiniciar",
     "controls.confirmReset": "Confirmar reinicio",
     "controls.resetQuestion": "¿Vaciar esta escena y empezar de nuevo?",
@@ -711,6 +813,11 @@ const es = {
     "counter.label": "Animales que han llegado: {count}",
     "settings.tryIt": "Pruébalo",
     "settings.summon": "Sacar a todos los animales",
+    "settings.advanced": "Avanzado",
+    "settings.previewHalloween": "Ver los personajes de Halloween",
+    "preview.title": "Personajes de Halloween",
+    "preview.opening": "Desde el principio",
+    "preview.unlocks": "Se desbloquea el {date}",
     "settings.savedNote":
       "Los ajustes se guardan solo en esta computadora. El sonido del micrófono nunca sale del dispositivo.",
     "goal.silent.label": "Silencio",
@@ -1027,6 +1134,23 @@ const es = {
     "polar-bear": "Oso polar",
     narwhal: "Narval",
     "bowhead-whale": "Ballena de Groenlandia",
+    "harvest-mouse": "Ratón espiguero",
+    "garden-spider": "Araña de jardín",
+    toad: "Sapo",
+    "brown-bat": "Murciélago marrón",
+    crow: "Cuervo",
+    "barn-owl": "Lechuza",
+    "black-cat": "Gato negro",
+    "little-ghost": "Fantasmita",
+    "cloudy-moon": "Luna nublada",
+    gourdling: "Calabacito",
+    scarecrow: "Espantapájaros",
+    mummy: "Momia",
+    vampire: "Vampiro",
+    gargoyle: "Gárgola",
+    "howling-wolf": "Lobo aullador",
+    "great-boo": "El Gran Bu",
+    "jack-o-lantern": "Jack O. Lantern",
   },
   facts: {
     didelphodon:
@@ -1094,6 +1218,38 @@ const es = {
       "Su colmillo es un diente en espiral que le atraviesa el labio superior y mide hasta 3 m.",
     "bowhead-whale":
       "Puede romper el hielo con su enorme cabeza y vivir más de 200 años.",
+    "harvest-mouse":
+      "Es uno de los ratones más pequeños del mundo y puede enrollar la cola en un tallo como si fuera otra mano.",
+    "garden-spider":
+      "Teje una tela nueva casi cada noche, y a menudo se come la vieja.",
+    toad: "Tocar un sapo no te da verrugas: sus bultos son simplemente su piel.",
+    "brown-bat":
+      "Encuentra insectos en la oscuridad por el eco, y puede cazar cientos en una hora.",
+    crow: "Los cuervos reconocen caras humanas y las recuerdan durante años.",
+    "barn-owl":
+      "Su cara en forma de corazón recoge el sonido como una antena, y así caza a oscuras.",
+    "black-cat":
+      "En Escocia y en Japón se dice que un gato negro que se cruza en tu camino trae buena suerte.",
+    "little-ghost":
+      "Un fantasma con una sábana es uno de los disfraces de Halloween más antiguos que hay.",
+    "cloudy-moon":
+      "La Luna siempre muestra la misma cara a la Tierra; nadie vio su cara oculta hasta 1959.",
+    gourdling:
+      "Las calabazas son frutos, no verduras: nacen de una flor y están llenas de semillas.",
+    scarecrow:
+      "Los agricultores llevan miles de años haciendo espantapájaros para proteger sus cultivos.",
+    mummy:
+      "Los antiguos egipcios envolvían una momia en cientos de metros de vendas de lino.",
+    vampire:
+      "Los murciélagos vampiro de verdad viven en América Central y del Sur, y comparten su comida con los amigos que pasan hambre.",
+    gargoyle:
+      "Las gárgolas de verdad son desagües: el agua de lluvia sale por su boca, lejos de las paredes.",
+    "howling-wolf":
+      "Los lobos aúllan para reunir a su manada, y un aullido se oye a kilómetros.",
+    "great-boo":
+      "La gente lleva gritando «¡Bu!» para asustarse desde por lo menos el siglo XVIII.",
+    "jack-o-lantern":
+      "Las primeras linternas de Halloween se tallaban en nabos en Irlanda; en América las sustituyeron las calabazas.",
   },
 } satisfies Language;
 
@@ -1118,6 +1274,14 @@ const fr = {
     "common.done": "Terminé",
     "fullScreen.enter": "Plein écran",
     "fullScreen.exit": "Quitter le plein écran",
+    "float.open": "Détacher au-dessus des autres onglets",
+    "float.openHint":
+      "Afficher la scène dans une petite fenêtre au-dessus de vos diapositives ou d’autres onglets",
+    "float.failed": "Impossible d’ouvrir la fenêtre flottante.",
+    "floating.title": "Shy Safari est dans une fenêtre flottante",
+    "floating.instructions":
+      "La scène est dans sa propre fenêtre au-dessus de vos autres onglets et continue d’écouter la classe. Gardez cet onglet ouvert : le bouton de retour à l’onglet de la fenêtre la ramène ici.",
+    "floating.return": "Ramener Shy Safari ici",
     "start.shy": "Chut… ces animaux sont timides !",
     "start.explain":
       "S’il y a trop de bruit, ils restent cachés. Quand la classe redevient calme, ils commencent à sortir.",
@@ -1126,6 +1290,8 @@ const fr = {
       "Le navigateur va demander l’accès au micro. Le son est mesuré sur cet ordinateur ; il n’est jamais enregistré ni envoyé nulle part.",
     "scene.label": "Décor",
     "scene.change": "Changer de décor",
+    "scene.new": "Nouveau",
+    "scene.newScenes": "Nouveaux décors",
     "scene.savanna.name": "Savane",
     "scene.savanna.hint": "Zèbres, girafes et lions",
     "scene.reef.name": "Récif de corail",
@@ -1140,6 +1306,20 @@ const fr = {
     "scene.jungle.hint": "Paresseux, toucans et jaguars",
     "scene.arctic.name": "Arctique",
     "scene.arctic.hint": "Ours polaires, phoques et narvals",
+    "scene.halloween.name": "Halloween",
+    "scene.halloween.hint": "Chauves-souris, fantômes et citrouilles",
+    "hollow.limited": "Édition limitée",
+    "hollow.daily": "Un nouvel animal chaque jour d’école",
+    "hollow.closesIn": "Part dans {days} jours",
+    "hollow.lastDay": "Dernier jour !",
+    "hollow.newToday": "Quelqu’un de nouveau est arrivé parmi les citrouilles…",
+    "hollow.signClosesIn": "Les citrouilles s’en vont dans {days} jours",
+    "hollow.signLastDay": "Dernier jour parmi les citrouilles",
+    "collection.unlocksInDays": "Débloqué dans {days}\u00a0jours",
+    "collection.unlocksIn": "Débloqué dans {time}",
+    "collection.comingSoon": "Bientôt",
+    "collection.newToday": "Nouveau aujourd’hui",
+    "collection.toCome": "encore {count} à venir",
     "controls.reset": "Réinitialiser",
     "controls.confirmReset": "Confirmer la réinitialisation",
     "controls.resetQuestion": "Vider ce décor et tout recommencer ?",
@@ -1241,6 +1421,11 @@ const fr = {
     "counter.label": "Animaux arrivés : {count}",
     "settings.tryIt": "Essayer",
     "settings.summon": "Faire sortir tous les animaux",
+    "settings.advanced": "Avancé",
+    "settings.previewHalloween": "Voir les personnages d’Halloween",
+    "preview.title": "Personnages d’Halloween",
+    "preview.opening": "Là dès le début",
+    "preview.unlocks": "Débloqué le {date}",
     "settings.savedNote":
       "Les réglages sont enregistrés sur cet ordinateur uniquement. Le son du micro ne quitte jamais l’appareil.",
     "goal.silent.label": "Silence",
@@ -1559,6 +1744,23 @@ const fr = {
     "polar-bear": "Ours polaire",
     narwhal: "Narval",
     "bowhead-whale": "Baleine boréale",
+    "harvest-mouse": "Rat des moissons",
+    "garden-spider": "Épeire des jardins",
+    toad: "Crapaud",
+    "brown-bat": "Petite chauve-souris brune",
+    crow: "Corneille",
+    "barn-owl": "Chouette effraie",
+    "black-cat": "Chat noir",
+    "little-ghost": "Petit fantôme",
+    "cloudy-moon": "Lune voilée",
+    gourdling: "Citrouillon",
+    scarecrow: "Épouvantail",
+    mummy: "Momie",
+    vampire: "Vampire",
+    gargoyle: "Gargouille",
+    "howling-wolf": "Loup hurleur",
+    "great-boo": "Le Grand Bouh",
+    "jack-o-lantern": "Jack O. Lantern",
   },
   facts: {
     didelphodon:
@@ -1628,6 +1830,38 @@ const fr = {
       "Sa défense est une dent en spirale qui traverse sa lèvre supérieure et mesure jusqu’à 3 m.",
     "bowhead-whale":
       "Elle peut briser la glace avec son énorme tête, et vivre plus de 200 ans.",
+    "harvest-mouse":
+      "C’est l’une des plus petites souris du monde, et sa queue s’enroule autour d’une tige comme une main de plus.",
+    "garden-spider":
+      "Elle tisse une toile toute neuve presque chaque nuit, et mange souvent l’ancienne.",
+    toad: "On n’attrape pas de verrues en touchant un crapaud : ses bosses sont simplement sa peau.",
+    "brown-bat":
+      "Elle trouve les insectes dans le noir grâce à l’écho, et peut en attraper des centaines en une heure.",
+    crow: "Les corneilles reconnaissent les visages humains, et s’en souviennent pendant des années.",
+    "barn-owl":
+      "Son visage en forme de cœur capte les sons comme une antenne, pour chasser dans le noir complet.",
+    "black-cat":
+      "En Écosse et au Japon, croiser un chat noir porterait bonheur.",
+    "little-ghost":
+      "Le fantôme en drap est l’un des plus vieux déguisements d’Halloween.",
+    "cloudy-moon":
+      "La Lune montre toujours la même face à la Terre ; personne n’a vu sa face cachée avant 1959.",
+    gourdling:
+      "Les citrouilles sont des fruits, pas des légumes : elles naissent d’une fleur et sont pleines de graines.",
+    scarecrow:
+      "Les paysans fabriquent des épouvantails pour protéger leurs récoltes depuis des milliers d’années.",
+    mummy:
+      "Les anciens Égyptiens enveloppaient une momie dans des centaines de mètres de bandelettes de lin.",
+    vampire:
+      "Les vraies chauves-souris vampires vivent en Amérique centrale et du Sud, et partagent leur repas avec leurs amies affamées.",
+    gargoyle:
+      "Les vraies gargouilles sont des gouttières : l’eau de pluie sort par leur bouche, loin des murs.",
+    "howling-wolf":
+      "Les loups hurlent pour rassembler leur meute, et un hurlement s’entend à des kilomètres.",
+    "great-boo":
+      "On crie « Bouh ! » pour se faire sursauter depuis au moins le XVIIIe siècle.",
+    "jack-o-lantern":
+      "Les premières lanternes d’Halloween étaient taillées dans des navets en Irlande ; en Amérique, la citrouille les a remplacés.",
   },
 } satisfies Language;
 

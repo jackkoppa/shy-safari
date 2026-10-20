@@ -7,7 +7,8 @@ no decisions, no specification. Decisions live in `docs/adr/`.
 
 The calm world on screen. The teacher chooses between seven Scenes: the
 savanna, the coral reef, deep space, the prehistoric floodplain, the
-forest, the jungle and the Arctic sea ice. A Scene
+forest, the jungle and the Arctic sea ice, and for a few weeks around
+Halloween an eighth, Pumpkin Hollow, a Limited-time Scene. A Scene
 is a backdrop, its Ambient Life, the Roster of Creatures that can live in it,
 and its Departure. Each
 Scene keeps the Creatures it has earned separately, so switching never takes
@@ -28,7 +29,27 @@ Creature in every other way.
 
 The full list of Creatures a Scene can produce. The Roster is fixed; the
 number of Creatures _present_ is not, because common Creatures can arrive more
-than once.
+than once. The one exception is a Limited-time Scene, whose Roster grows by
+one Newcomer on each Unlock Day.
+
+## Limited-time Scene
+
+A Scene that is only on offer for a while: Pumpkin Hollow, from the Sunday
+before the two weeks up to Halloween until a week after it. It opens with
+part of its Roster and gains the rest on Unlock Days. After Halloween it
+counts down the days it has left, and then it is gone from every menu and
+from the Collection, though nothing a Class earned in it is deleted.
+
+## Unlock Day
+
+A school day on which a Limited-time Scene adds one Creature to its Roster,
+by the teacher's computer's own calendar.
+
+## Newcomer
+
+The Creature an Unlock Day adds. It is certain to arrive within a Class's
+first six arrivals in that Scene that day, and until the Class has spotted
+it, that promise carries over to the next days.
 
 ## Rarity Tier
 
@@ -109,14 +130,17 @@ Departure. They are gone for the rest of the Session.
 How a Scene's Creatures leave when they Run Away. On the savanna, the
 reef, the prehistoric floodplain, the forest, the jungle and the Arctic they are startled and **run** off the edge of the Scene. In deep space
 they **fade out**: each one stays where it is and breaks up into static, like
-a signal lost to interference. Only the look differs: which Creatures leave,
-and when, is the same in every Scene.
+a signal lost to interference. In Pumpkin Hollow the animals run, but the
+ghosts, the moon and Jack O. Lantern fade away. Only the look differs: which
+Creatures leave, and when, is the same in every Scene.
 
 ## Paused
 
 The teacher has stopped the app listening for a while, say to make an
 announcement. Nothing is judged while Paused: no Creature Runs Away, none
-arrives, and the Scene stays clear. Not to be confused with choosing to pause
+arrives, and the Scene stays clear. The Creatures **listen**: each comes to a
+calm stop and turns to face the class, modelling what the class should be
+doing, then shakes itself off and wanders again when the teacher resumes. Not to be confused with choosing to pause
 the Scene when it is Too Loud, which is about how the Scene reacts to noise.
 
 ## Volume Goal
@@ -129,6 +153,15 @@ by choosing a named preset or by adjusting it directly.
 Teaching the app what this particular room and microphone sound like, by
 sampling the room while it is silent and again while it is talking normally.
 Calibration is optional; without it the app uses a sensible default.
+
+## Floating
+
+The Scene shown in a small window of its own that stays on top of the
+teacher's other tabs and windows, say over their slides. Only the Scene, the
+Noise Meter and the arrival counter go with it, and a button to pause; the
+Timer, Notes and every other control wait in the tab. Floating changes
+nothing about the Session: the room is listened to and Creatures arrive and
+Run Away just as before.
 
 ## Timer
 

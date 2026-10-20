@@ -20,7 +20,14 @@
    */
 
   import type { App } from "$lib/app.svelte";
-  import { SCENES } from "$lib/scenes";
+  import { isAvailable, SCENES } from "$lib/scenes";
+  import {
+    todaysNewcomer,
+    unlockDay,
+    unlockedSlugs,
+  } from "$lib/scenes/halloween/calendar";
+  import { unlocksIn } from "$lib/scenes/halloween/wording";
+  import { today } from "$lib/today.svelte";
   import type { RarityTier, SceneId } from "$lib/scenes/types";
   import { TIER_WEIGHTS } from "$lib/session/roll";
   import { sightings } from "$lib/session/sightings.svelte";
@@ -46,6 +53,47 @@
 
   function chance(tier: RarityTier) {
     return Math.round((TIER_WEIGHTS[tier] / totalWeight) * 100);
+  }
+
+  /** The Scenes on offer today, and always the one on screen. */
+  const tabs = $derived(
+    Object.values(SCENES).filter(
+      (option) =>
+        isAvailable(option.id, today.day) || option.id === app.scene.id,
+    ),
+  );
+
+  /**
+   * In Pumpkin Hollow, Creatures the calendar has yet to unlock (or whose
+   * artwork has yet to land) show as a card saying which day they come,
+   * with nothing of them shown, not even a silhouette.
+   */
+  const locked = $derived.by(() => {
+    if (sceneId !== "halloween") return new Set<string>();
+    const unlocked = unlockedSlugs(today.day);
+    return new Set(
+      scene.roster
+        .filter(
+          (def) =>
+            !unlocked.includes(def.slug) || !(def.slug in scene.creatureArt),
+        )
+        .map((def) => def.slug),
+    );
+  });
+
+  const newToday = $derived(
+    sceneId === "halloween" ? todaysNewcomer(today.day) : null,
+  );
+
+  /**
+   * "Unlocks in 3 days", counting down by the second on the day before, or,
+   * for one already due whose artwork is not in yet, "Coming soon".
+   */
+  function comesOn(slug: string) {
+    const day = unlockDay(slug);
+    return day && today.day !== null && today.now !== null && day > today.day
+      ? unlocksIn(day, today.day, today.now)
+      : t("collection.comingSoon");
   }
 
   const seen = $derived(
@@ -83,8 +131,11 @@
           {tIn(sceneId, "collection.spotted", {
             class: className(classes.current.name),
             seen,
-            total: scene.roster.length,
+            total: scene.roster.length - locked.size,
           })}
+          {#if locked.size > 0}
+            · {t("collection.toCome", { count: locked.size })}
+          {/if}
         </p>
       </div>
       <div
@@ -92,7 +143,7 @@
         role="group"
         aria-label={t("scene.label")}
       >
-        {#each Object.values(SCENES) as option (option.id)}
+        {#each tabs as option (option.id)}
           <button
             class="rounded-full border px-3 py-1 whitespace-nowrap {sceneId ===
             option.id
@@ -162,39 +213,62 @@
             >
               {#each defs as def (def.slug)}
                 {@const count = sightings.count(sceneId, def.slug)}
-                <!-- A Creature with a fact to tell shows it on hover. -->
-                <li
-                  title={creatureFact(def.slug)}
-                  class="flex min-w-0 flex-col items-center rounded-lg border p-2 text-center {tier ===
-                  'rare'
-                    ? 'border-amber-300 bg-amber-50'
-                    : 'border-slate-200'}"
-                >
-                  <div
-                    class="flex h-12 w-full items-center justify-center"
-                    class:unseen={count === 0}
+                {#if locked.has(def.slug)}
+                  <li
+                    class="flex min-w-0 flex-col items-center justify-center rounded-lg border border-dashed border-slate-300 bg-slate-50 p-2 text-center"
                   >
-                    <img
-                      src={artUrl(
-                        `${sceneId}/${def.slug}`,
-                        scene.creatureArt[def.slug],
-                      )}
-                      alt=""
-                      draggable="false"
-                      class="size-full object-contain"
-                    />
-                  </div>
-                  <!-- Long names break at their soft hyphens (see i18n) to fit the card. -->
-                  <span
-                    class="mt-1 max-w-full text-sm font-medium break-words hyphens-auto text-slate-800"
-                    >{creatureName(def.slug)}</span
+                    <div
+                      class="flex h-12 w-full items-center justify-center text-3xl font-semibold text-slate-300"
+                      aria-hidden="true"
+                    >
+                      ?
+                    </div>
+                    <span
+                      class="mt-1 text-sm font-medium text-slate-500 tabular-nums"
+                      >{comesOn(def.slug)}</span
+                    >
+                  </li>
+                {:else}
+                  <!-- A Creature with a fact to tell shows it on hover. -->
+                  <li
+                    title={creatureFact(def.slug)}
+                    class="flex min-w-0 flex-col items-center rounded-lg border p-2 text-center {tier ===
+                    'rare'
+                      ? 'border-amber-300 bg-amber-50'
+                      : 'border-slate-200'}"
                   >
-                  <span class="text-xs text-slate-500">
-                    {count === 0
-                      ? tIn(sceneId, "collection.notSeen")
-                      : tIn(sceneId, "collection.seen", { count })}
-                  </span>
-                </li>
+                    <div
+                      class="flex h-12 w-full items-center justify-center"
+                      class:unseen={count === 0}
+                    >
+                      <img
+                        src={artUrl(
+                          `${sceneId}/${def.slug}`,
+                          scene.creatureArt[def.slug],
+                        )}
+                        alt=""
+                        draggable="false"
+                        class="size-full object-contain"
+                      />
+                    </div>
+                    <!-- Long names break at their soft hyphens (see i18n) to fit the card. -->
+                    <span
+                      class="mt-1 max-w-full text-sm font-medium break-words hyphens-auto text-slate-800"
+                      >{creatureName(def.slug)}</span
+                    >
+                    <span class="text-xs text-slate-500">
+                      {count === 0
+                        ? tIn(sceneId, "collection.notSeen")
+                        : tIn(sceneId, "collection.seen", { count })}
+                    </span>
+                    {#if def.slug === newToday}
+                      <span
+                        class="mt-1 rounded-full bg-orange-100 px-2 py-px text-[0.7rem] font-semibold text-orange-800"
+                        >{t("collection.newToday")}</span
+                      >
+                    {/if}
+                  </li>
+                {/if}
               {/each}
             </ul>
           </section>

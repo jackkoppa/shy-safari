@@ -522,3 +522,170 @@ open water, pressure ridges, drifts, boulders and dry sedge that sways on the
 snowfield, and a far skein of geese in silhouette. Too Loud is a whiteout:
 the Scene pales and wind-blown streaks of snow cross it
 (`arctic/scene.css`).
+
+## 14. Pumpkin Hollow
+
+A hillside pumpkin patch on Halloween eve, just after dusk: a few big rows
+of vines and leaves with straw between them and pumpkins among them, in
+front of a great gnarled oak on the left and a crooked old tree on the
+right; beyond the trees an open meadow with a crooked split-rail fence runs
+back to far plum hills
+with a crooked old farmhouse, bare trees fading into the haze, and a huge
+harvest moon rising on the right (`halloween/roster.ts` has the animals).
+It is only in the app for three weeks round Halloween. It is drawn in the
+savanna's cartoon style, so §1 and §2 apply as they do there, and its
+Creatures are drawn and checked exactly as the forest's, the jungle's and
+the Arctic's are. What it adds:
+
+- **Spooky-cute, never scary.** It runs in calm classrooms of every age all
+  day on a projector. Every face uses the signature eye and the pink cheek
+  (`#ff7a8a` at 0.55) and is neutral or happy, never fierce: no fangs, no
+  claws out, no glowing slit pupils, no grimaces. Trees and houses never get
+  faces. Knots in the bark are long, low bumps, never round, so nothing in
+  the scenery reads as an eye. Glows are translucent shapes layered on each
+  other, never a blur or a filter, and nothing flashes.
+- **The night is never black.** The sky runs from indigo overhead to plum,
+  with amber where the sun has just set. Black animals (the cat and
+  the crow) are a purple-charcoal, `#3d3550`, never `#000`. (The bat is
+  a warm, light brown instead, so it shows against the sky and the oak.) Each has a pale
+  lavender moon rim (`#c9b8e8` at about 0.6) along the top edge of
+  its back, head, ears and tail, and its eyes are gold `#ffd166` inside a
+  lavender ring round the dark signature pupil and its glint, so they never
+  read as holes. Far legs and the belly take the `#2b2b3a` overlay at
+  0.3–0.35, as on any other animal. The rims are bands that follow the
+  silhouette exactly and taper to nothing at their ends; they are not
+  outlines.
+- **White things glow against the dark.** Ghosts are ghost white `#f3f1f8`,
+  shaded with ghost shade `#c7c0dc` (solid for the far arm and the back of
+  the hem, about 0.55–0.75 over the body for its shadow side and the hem),
+  with one soft white sheen high on the head.
+- **Faces in profile** follow the savanna's and the forest's best-loved
+  ones (the lion, the red fox, the arctic fox): a round skull, a short
+  muzzle that juts forward with the nose on its tip and a little mouth
+  under it, the eye forward of centre but well behind the muzzle, and the
+  blush below and behind the eye.
+- **Ground animals** walk the savanna's band (feet on the bottom edge of the
+  viewBox, 62% of the way down to the bottom) and have an Arctic contact
+  shadow: an `#2b2b3a` ellipse at about 0.22 centred on the bottom edge of
+  the viewBox, so only its top half shows. Floaters (the little ghost) have
+  no feet and no shadow, and still face right.
+- **Part groups** set `transform-box: fill-box` and their joint inline as
+  the savanna's do (§8), and use the shared classes. The black cat's
+  question-mark tail is `part-tail`, pivoting at the rump. Its ears are two
+  `part-ears` groups, because the far ear is painted behind the head and
+  the near one in front of it; each pivots at its own base, and both sit
+  well back on the skull with their bases sunk into it. The little ghost's whole sheet is `part-body`, swinging from
+  the top of its head (`transform-origin: 52% 0%`), so the hem sways like a
+  sheet hung from one point and nothing can open a gap.
+
+### Palette
+
+§1's ink `#2b2b3a`, highlight `#ffffff`, cream `#f4f1de`, blush `#ff7a8a`
+and accent yellow `#ffd166` (the cat's eyes), plus:
+
+| Role              | Hex       |
+| ----------------- | --------- |
+| Sky high          | `#2f2650` |
+| Sky low           | `#5e3f6e` |
+| Horizon glow      | `#e8a85a` |
+| Moon              | `#f6d27a` |
+| Pumpkin           | `#e8812a` |
+| Pumpkin shade     | `#c0601c` |
+| Lantern glow      | `#ffc95e` |
+| Vine green        | `#5f7a3a` |
+| Night black (fur) | `#3d3550` |
+| Moon rim          | `#c9b8e8` |
+| Ghost white       | `#f3f1f8` |
+| Ghost shade       | `#c7c0dc` |
+| Bandage           | `#e6dcc4` |
+| Weathered wood    | `#6b4f3a` |
+
+Scenery is solid, as §8 says, so its hazy and moonlit tones are these
+colours mixed with each other: the far hills are sky low mixed with the
+horizon glow and with sky high, the hazy pumpkins are pumpkin mixed with the
+hills, the patch's soil is weathered wood with a little sky low in it, and
+its straw is the horizon glow mixed with wood and vine green, dimmed by the
+dusk.
+
+### The backdrop
+
+`ambient/backdrop.svg` is 1920×1080 with `preserveAspectRatio="none"`, like
+the others, and its one gradient is the sky, `halloween-backdrop-sky`.
+
+- **There is no bough.** The oak and the crooked tree are freestanding, each
+  with a low limb reaching out over the patch, and nothing in the Scene
+  climbs or hangs: its tree animals fly (`soar`), and the spider and the
+  gargoyle keep to the ground.
+- **Beyond the trees' feet is open meadow**, from the hills (y 640) to about
+  y 768: calm, hazier with distance, with no rows and no pumpkins, only
+  the fence crossing it, its feet at about y 675. The back of it,
+  `PATCH_BACK` (y 648–691), is where the finale's giant strides.
+- **The pumpkin patch starts in front of the trees**, at about y 768, and
+  runs to the bottom: three big, bold rows of vines and large three-lobed
+  leaves on soil (centred near y 812, 908 and 1030, each bigger than the
+  one behind), with wide paths of straw between them. Keep it this calm: it
+  must read at a glance from the back of a classroom, and the animals walk
+  over it. Ground animals walk from 62% (y 670) to the bottom, through the
+  meadow and the patch. The rows, the fence and the trees are drawn back to
+  front, so a nearer row of leaves runs over the foot of anything behind it.
+- **The middle of the sky** (x 0.3–0.7, y 0.1–0.4) is kept calm for a Note:
+  only a few faint stars.
+- **The moon is not in the backdrop.** The backdrop stretches with the
+  screen, which would squash a moon into an oval at 4:3. It is two Ambient
+  Life pieces instead, `ambient/moon.svg` (the disc, 284 px of a 1920 Scene,
+  14.8 wu) and `ambient/moon-glow.svg` (its halo, 680 px, 35.4 wu), both
+  centred 78% across the backdrop and 20% down and sized in `wu`, so they
+  stay round. The glow is the one that breathes. Nothing in the backdrop
+  crosses the moon's disc, since the moon is drawn in front of it.
+- **The farmhouse's** larger window (centre x 787, y 488) is the one the
+  candle in Ambient Life glows and dims in.
+- **Loose things are Ambient Life**, so they layer with the animals. The
+  backdrop paints no pumpkins at all, only the vines and leaves that lie
+  flat on the ground.
+
+### The patch's Ambient Life
+
+The nearer pumpkins stand in the patch as their own pieces
+(`halloween/AmbientLife.svelte` places them): `pumpkin-round`,
+`pumpkin-tall`, `pumpkin-squat` (wide, seven ribs), `pumpkin-warty` (a
+little green, with knobbles), `pumpkin-striped` (pale cream with orange
+grooves), `pumpkin-cluster` (three on the vine with leaves), two carved
+`jack-o-lantern`s (a happy face and a surprised one), a `corn-bundle` and a
+`hay-bale`. Each sits on the bottom edge of its viewBox with the same
+contact shadow as the animals, and is sized and layered by its depth in
+the patch exactly as an animal would be, so a cat walks in front of some
+and behind others and a pumpkin is always pumpkin-sized beside it. They
+stand only in the patch, never in the meadow beyond the trees.
+
+- **Pumpkins** are built the same way throughout: lobes as overlapping
+  ellipses, the outer ones in pumpkin shade, each lobe's groove side under
+  the `#2b2b3a` overlay at 0.12, a dark core behind the lobes so no ground
+  shows between them, one white sheen, a dimple of shade where the stem
+  goes in, and a curved green-brown stem with a pale cut end.
+- **Jack-o'-lanterns' faces are friendly**: smiling crescent eyes and a
+  grin with two square teeth, or round surprised eyes and an "o". The cut
+  holes show the carved wall at their top and left, then the light
+  (`#ffc95e`) with a paler hot centre, held to the holes by a clip path
+  (`halloween-<file>-holes`). Their glow is a separate piece,
+  `lantern-glow.svg`: layered translucent ellipses and a pool of light on the
+  ground, in the lantern's own units, so `scene.css` can place it round any
+  lantern. The light and the glow flicker gently and out of step, between
+  about 0.86 and 1 opacity over four to seven seconds, never a flash; the
+  corn sways about its foot. Both stop for `prefers-reduced-motion`.
+
+### Ids
+
+As §2.5: Creatures have none, or prefix them with the slug. Every id in the
+backdrop and the rest of Ambient Life is prefixed `halloween-`.
+
+### Keeping clear of other people's designs
+
+Nothing echoes a copyrighted Halloween design. No Jack Skellington or
+_Nightmare Before Christmas_ look (no pinstripes, no bat bow tie, no spindly
+skeleton, no white skull face, and the finale is never called "the Pumpkin
+King"); no Peanuts _Great Pumpkin_; no Casper (the little ghost is a sheet
+with a wavy hem and a trailing wisp, not a round head on a tapering body);
+no Universal monster make-up (no flat-topped head with neck bolts, no
+widow's peak); nothing from _Hocus Pocus_. The finale, Jack O. Lantern, a
+gentle giant of vines and autumn leaves with a glowing carved-pumpkin head,
+comes from public-domain folklore: the Green Man and Stingy Jack's lantern.

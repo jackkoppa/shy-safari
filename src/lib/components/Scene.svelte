@@ -12,7 +12,9 @@
 
   import type { SceneDef } from "$lib/scenes";
   import type { CreatureInstance } from "$lib/session/session.svelte";
+  import { welcomeFor } from "$lib/scenes/welcome";
   import Creature from "./Creature.svelte";
+  import HollowSign from "./HollowSign.svelte";
 
   let {
     scene,
@@ -20,6 +22,7 @@
     newestId,
     murky,
     frozen,
+    listening,
     scares,
     fleeing,
     ondepart,
@@ -31,6 +34,11 @@
     /** Too Loud: everyone holds still, except any Creature running away. */
     frozen: boolean;
     /**
+     * Paused: the teacher is talking, so every Creature stops and turns to
+     * listen, modelling what the class should be doing.
+     */
+    listening: boolean;
+    /**
      * The teacher chose "animals run away". The haze is then only a hint:
      * everyone freezing and bolting is the signal, and must stay sharp.
      */
@@ -40,6 +48,11 @@
     /** A fleeing Creature has run out of sight, or faded away. */
     ondepart: (id: number) => void;
   } = $props();
+
+  /** One the Scene answers to is here, or has just come. */
+  const welcome = $derived(
+    welcomeFor(scene.welcomes, creatures, newestId, fleeing),
+  );
 </script>
 
 <div
@@ -48,6 +61,7 @@
   data-murky={murky}
   data-frozen={frozen}
   data-scares={scares}
+  data-welcome={welcome}
 >
   <!--
     The whole landscape in one piece of artwork. It sits inside the container
@@ -70,14 +84,21 @@
     <Creature
       {creature}
       art={scene.creatureArt[creature.def.slug]}
+      listeningArt={scene.listeningArt[creature.def.slug]}
       depthFade={scene.depthFade}
-      departure={scene.departure}
+      departure={creature.def.departure ?? scene.departure}
+      whilePaused={scene.whilePaused}
       isNewest={creature.id === newestId}
       {frozen}
+      {listening}
       fleeing={fleeing.includes(creature.id)}
       ongone={() => ondepart(creature.id)}
     />
   {/each}
+
+  {#if scene.id === "halloween"}
+    <HollowSign />
+  {/if}
 
   <!-- One veil over the whole Scene, never a per-Creature effect. -->
   <div class="too-loud-veil pointer-events-none absolute inset-0"></div>
