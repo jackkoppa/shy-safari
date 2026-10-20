@@ -24,6 +24,7 @@
     type NoteMode,
   } from "$lib/notes/notes.svelte";
   import type { SceneDef } from "$lib/scenes";
+  import { slide } from "svelte/transition";
   import NoteView from "./NoteView.svelte";
 
   let {
@@ -43,6 +44,18 @@
   );
   /** Each Note opens in the mode it was left in. */
   const mode = $derived<NoteMode>(selected?.mode ?? "type");
+
+  /**
+   * Whether the toolbar's second panel, columns and text size, is open. It
+   * starts closed, so the toolbar is just Type or Draw and the pens.
+   */
+  let moreOpen = $state(false);
+  const uid = $props.id();
+  const moreId = `note-more-${uid}`;
+
+  function reducedMotion() {
+    return window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  }
 
   /** The column the caret was last in, which the size buttons change. */
   let focusedColumn = $state(0);
@@ -182,7 +195,7 @@
       selected={note.id === selectedId}
       {chrome}
       {mode}
-      activeColumn={note.id === selectedId ? activeColumn : 0}
+      activeColumn={note.id === selectedId && moreOpen ? activeColumn : -1}
       onselect={() => choose(note.id)}
       onfocuscolumn={(column) => (focusedColumn = column)}
       onchange={(change) => notes.update(note.id, change)}
@@ -269,89 +282,125 @@
           {/each}
         </div>
 
-        <!-- Side-by-side columns of words, each typed in on its own. -->
-        <div
-          class="flex rounded-full border border-slate-300 p-0.5"
-          role="group"
-          aria-label={t("notes.columns")}
-        >
-          {#each Array.from({ length: MAX_COLUMNS }, (_, i) => i + 1) as count (count)}
-            {@const label =
-              count === 1
-                ? t("notes.oneColumn")
-                : t("notes.columnCount", { count })}
-            <button
-              class="grid h-8 w-9 place-items-center rounded-full {selected.columns ===
-              count
-                ? 'bg-slate-900 text-white'
-                : 'text-slate-700 hover:bg-slate-100'}"
-              aria-label={label}
-              title={label}
-              aria-pressed={selected.columns === count}
-              onclick={() => setColumns(count)}
+        <!-- Columns and text size are tucked away until asked for, so the
+             toolbar stays as simple as it always was. Typing only. -->
+        {#if mode === "type"}
+          <button
+            class="grid size-8 place-items-center rounded-full text-slate-700 hover:bg-slate-100"
+            aria-expanded={moreOpen}
+            aria-controls={moreId}
+            aria-label={t("notes.more")}
+            title={t("notes.more")}
+            onclick={() => (moreOpen = !moreOpen)}
+          >
+            <svg
+              viewBox="0 0 24 24"
+              class="size-5 transition-transform duration-200 motion-reduce:transition-none"
+              class:rotate-180={moreOpen}
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2.2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              aria-hidden="true"
             >
-              <svg
-                viewBox="0 0 24 24"
-                class="size-5"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="2"
-                stroke-linejoin="round"
-                aria-hidden="true"
-              >
-                <rect x="3" y="4" width="18" height="16" rx="2" />
-                {#each Array.from({ length: count - 1 }, (_, i) => 3 + (18 * (i + 1)) / count) as x (x)}
-                  <path d="M{x} 4v16" />
-                {/each}
-              </svg>
-            </button>
-          {/each}
-        </div>
+              <path d="M6 9l6 6 6-6" />
+            </svg>
+          </button>
+        {/if}
       </div>
 
-      {#if mode === "type"}
-        <!-- Fitted to the space, or a size of the teacher's own, for the
-             column the caret is in. -->
+      {#if mode === "type" && moreOpen}
         <div
-          class="flex flex-wrap items-center justify-center gap-1.5 text-sm sm:gap-2"
-          role="group"
-          aria-label={selected.columns > 1
-            ? `${t("notes.size")}: ${t("notes.column", { n: activeColumn + 1 })}`
-            : t("notes.size")}
+          id={moreId}
+          class="flex flex-col items-center gap-1.5"
+          transition:slide={{ duration: reducedMotion() ? 0 : 200 }}
         >
-          {#if selected.columns > 1}
-            <span class="px-1 text-slate-500">
-              {t("notes.column", { n: activeColumn + 1 })}
-            </span>
-          {/if}
-          <button
-            class="rounded-full border px-3 py-1.5 {autoFit
-              ? 'border-slate-900 bg-slate-900 text-white'
-              : 'border-slate-300 hover:bg-slate-50'}"
-            aria-pressed={autoFit}
-            title={t("notes.autoFitHint")}
-            onclick={() =>
-              notes.update(
-                selected.id,
-                withColumnSize(selected, activeColumn, null),
-              )}
+          <!-- Side-by-side columns of words, each typed in on its own. -->
+          <div
+            class="flex rounded-full border border-slate-300 p-0.5"
+            role="group"
+            aria-label={t("notes.columns")}
           >
-            {t("notes.autoFit")}
-          </button>
-          <div class="flex rounded-full border border-slate-300 p-0.5">
-            {#each [-1, 1] as const as direction (direction)}
+            {#each Array.from({ length: MAX_COLUMNS }, (_, i) => i + 1) as count (count)}
+              {@const label =
+                count === 1
+                  ? t("notes.oneColumn")
+                  : t("notes.columnCount", { count })}
               <button
-                class="grid h-8 w-10 place-items-center rounded-full font-semibold text-slate-700 hover:bg-slate-100"
-                aria-label={t(direction < 0 ? "notes.smaller" : "notes.bigger")}
-                title={t(direction < 0 ? "notes.smaller" : "notes.bigger")}
-                onclick={() => resize(direction)}
+                class="grid h-8 w-9 place-items-center rounded-full {selected.columns ===
+                count
+                  ? 'bg-slate-900 text-white'
+                  : 'text-slate-700 hover:bg-slate-100'}"
+                aria-label={label}
+                title={label}
+                aria-pressed={selected.columns === count}
+                onclick={() => setColumns(count)}
               >
-                <span aria-hidden="true">
-                  <span class={direction < 0 ? "text-xs" : "text-base"}>A</span
-                  >{direction < 0 ? "−" : "+"}
-                </span>
+                <svg
+                  viewBox="0 0 24 24"
+                  class="size-5"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linejoin="round"
+                  aria-hidden="true"
+                >
+                  <rect x="3" y="4" width="18" height="16" rx="2" />
+                  {#each Array.from({ length: count - 1 }, (_, i) => 3 + (18 * (i + 1)) / count) as x (x)}
+                    <path d="M{x} 4v16" />
+                  {/each}
+                </svg>
               </button>
             {/each}
+          </div>
+
+          <!-- Fitted to the space, or a size of the teacher's own, for the
+               column the caret is in. -->
+          <div
+            class="flex flex-wrap items-center justify-center gap-1.5 text-sm sm:gap-2"
+            role="group"
+            aria-label={selected.columns > 1
+              ? `${t("notes.size")}: ${t("notes.column", { n: activeColumn + 1 })}`
+              : t("notes.size")}
+          >
+            {#if selected.columns > 1}
+              <span class="px-1 text-slate-500">
+                {t("notes.column", { n: activeColumn + 1 })}
+              </span>
+            {/if}
+            <button
+              class="rounded-full border px-3 py-1.5 {autoFit
+                ? 'border-slate-900 bg-slate-900 text-white'
+                : 'border-slate-300 hover:bg-slate-50'}"
+              aria-pressed={autoFit}
+              title={t("notes.autoFitHint")}
+              onclick={() =>
+                notes.update(
+                  selected.id,
+                  withColumnSize(selected, activeColumn, null),
+                )}
+            >
+              {t("notes.autoFit")}
+            </button>
+            <div class="flex rounded-full border border-slate-300 p-0.5">
+              {#each [-1, 1] as const as direction (direction)}
+                <button
+                  class="grid h-8 w-10 place-items-center rounded-full font-semibold text-slate-700 hover:bg-slate-100"
+                  aria-label={t(
+                    direction < 0 ? "notes.smaller" : "notes.bigger",
+                  )}
+                  title={t(direction < 0 ? "notes.smaller" : "notes.bigger")}
+                  onclick={() => resize(direction)}
+                >
+                  <span aria-hidden="true">
+                    <span class={direction < 0 ? "text-xs" : "text-base"}
+                      >A</span
+                    >{direction < 0 ? "−" : "+"}
+                  </span>
+                </button>
+              {/each}
+            </div>
           </div>
         </div>
       {/if}

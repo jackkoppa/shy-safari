@@ -39,6 +39,12 @@ describe("columnTexts", () => {
     ).toEqual(["Read"]);
   });
 
+  it("shows only the first column while the Note is drawn on", () => {
+    const note = { text: "A", columns: 3, moreText: ["B", "C"] };
+    expect(columnTexts({ ...note, mode: "draw" })).toEqual(["A"]);
+    expect(columnTexts({ ...note, mode: "type" })).toEqual(["A", "B", "C"]);
+  });
+
   it("fills columns with no words yet with blanks", () => {
     expect(columnTexts({ text: "A", columns: 3, moreText: ["B"] })).toEqual([
       "A",

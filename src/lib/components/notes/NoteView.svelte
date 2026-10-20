@@ -48,7 +48,7 @@
     /** The grips and close button show; they go with the controls. */
     chrome: boolean;
     mode: NoteMode;
-    /** The column the size buttons change, outlined while chosen. */
+    /** The column the size buttons change, outlined; -1 for none. */
     activeColumn?: number;
     onselect: () => void;
     /** The caret went into a column, counting from 0. */
