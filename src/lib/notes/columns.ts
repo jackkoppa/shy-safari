@@ -7,9 +7,6 @@
  * are kept in `moreText`, and keep their words when the teacher takes columns
  * away, so putting a column back brings its words back too.
  *
- * Columns are for typing: while a Note is drawn on, it shows only its first
- * column, and the others come back as they were once it is typed in again.
- *
  * Each column's words fit the space by themselves, or keep a size the
  * teacher sets with the size buttons.
  */
@@ -23,8 +20,6 @@ export interface ColumnWords {
   text: string;
   columns: number;
   moreText: string[];
-  /** A Note being drawn on shows only its first column. */
-  mode?: "type" | "draw";
 }
 
 /** A whole number of columns, from one to `MAX_COLUMNS`. */
@@ -35,8 +30,7 @@ export function columnCount(value: unknown): number {
 
 /** The words in each column on show, left to right. */
 export function columnTexts(note: ColumnWords): string[] {
-  const shown = note.mode === "draw" ? 1 : columnCount(note.columns);
-  return Array.from({ length: shown }, (_, i) =>
+  return Array.from({ length: columnCount(note.columns) }, (_, i) =>
     i === 0 ? note.text : (note.moreText[i - 1] ?? ""),
   );
 }

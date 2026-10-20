@@ -31,7 +31,7 @@ style.
   always was, and the rest are kept beside it (`notes/columns.ts`). A Note
   saved before columns existed is a Note with one column, and a Note saved
   with columns still shows its first column in a version without them.
-- **Columns are for typing.** In Draw, the panel's chevron is hidden and the
-  Note shows only its first column, so the pen has the whole Note. Back in
-  Type, the columns come back with their words. The pen draws across the
-  whole Note, as it always did.
+- **Drawing goes over the columns.** The pen draws across the whole Note,
+  over the columns as over the words, so a teacher can circle or underline
+  what is typed. The panel's chevron shows in Type only, as columns and
+  text size are about the typing; Draw keeps its own Undo and Clear row.
